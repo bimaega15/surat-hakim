@@ -1,6 +1,5 @@
 <?php
 
-use App\Http\Controllers\ACompleteBarang;
 use App\Http\Controllers\MyProfileController;
 use App\Http\Controllers\SelectSearchController;
 use Illuminate\Support\Facades\Route;
@@ -28,12 +27,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/myProfile/{id}/edit', [MyProfileController::class, 'edit'])->name('myProfile.edit');
     Route::put('/myProfile/{id}', [MyProfileController::class, 'update'])->name('myProfile.update');
 
-    Route::get('select/kasir', [SelectSearchController::class, 'kasir']);
-    Route::get('select/customer', [SelectSearchController::class, 'customer']);
-    Route::get('select/barang', [SelectSearchController::class, 'barang']);
-    Route::get('select/kategoriPembayaran', [SelectSearchController::class, 'kategoriPembayaran']);
-    Route::get('select/supplier', [SelectSearchController::class, 'supplier']);
-    Route::get('select/users', [SelectSearchController::class, 'users']);
 
-    Route::get('autocomplete/barang', [ACompleteBarang::class, 'barang']);
+    
+    // Route::get('select/kasir', [SelectSearchController::class, 'kasir']);
+    // Route::get('select/customer', [SelectSearchController::class, 'customer']);
+    // Route::get('select/barang', [SelectSearchController::class, 'barang']);
+    // Route::get('select/kategoriPembayaran', [SelectSearchController::class, 'kategoriPembayaran']);
+    // Route::get('select/supplier', [SelectSearchController::class, 'supplier']);
+    // Route::get('select/users', [SelectSearchController::class, 'users']);
 });

@@ -8,10 +8,8 @@
 @section('content')
     <div class="container-xxl flex-grow-1 container-p-y">
         <h5>Dashboard</h5>
-        @include('dashboard::partials.invoice')
         @include('dashboard::partials.infoItem')
-        @include('dashboard::partials.reviewItem')
-        @include('dashboard::partials.piutang')
+        @include('dashboard::partials.surat')
     </div>
 @endsection
 

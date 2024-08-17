@@ -428,7 +428,7 @@ class UtilsHelper
 
     public static function createdApp()
     {
-        return 'Laras Inventory App';
+        return 'Surat Menyurat Hakim';
     }
 
     public static function createStructureTree()
