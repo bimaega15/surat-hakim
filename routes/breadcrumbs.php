@@ -18,6 +18,11 @@ Breadcrumbs::for('petunjukAwal', function (BreadcrumbTrail $trail) {
     $trail->parent('listSurat');
     $trail->push('Petunjuk Awal', url('surat/petunjukAwal?formSuratId='. request()->formSuratId));
 });
+// Home > petunjukAkhir
+Breadcrumbs::for('petunjukAkhir', function (BreadcrumbTrail $trail) {
+    $trail->parent('listSurat');
+    $trail->push('Petunjuk Akhir', url('surat/petunjukAkhir?formSuratId='. request()->formSuratId));
+});
 
 // Home > user
 Breadcrumbs::for('user', function (BreadcrumbTrail $trail) {

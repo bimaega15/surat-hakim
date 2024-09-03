@@ -144,7 +144,7 @@ class PetunjukAwalController extends Controller
     public function destroy($id)
     {
         //
-        UtilsHelper::deleteFile($id, 'informasi_sebelum', 'surat', 'gambar_isebelum');
+        UtilsHelper::deleteFile($id, 'informasi_sebelum', 'informasiSebelum', 'gambar_isebelum');
         InformasiSebelum::destroy($id);
         return response()->json('Berhasil hapus data', 200);
     }

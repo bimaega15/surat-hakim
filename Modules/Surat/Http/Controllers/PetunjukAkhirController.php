@@ -3,14 +3,13 @@
 namespace Modules\Surat\Http\Controllers;
 
 use App\Http\Helpers\UtilsHelper;
-use App\Models\FormSurat;
+use App\Models\InformasiSetelah;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Modules\Surat\Http\Requests\FormListSuratRequest;
 use DataTables;
 
-class ListSuratController extends Controller
+class PetunjukAkhirController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -19,16 +18,17 @@ class ListSuratController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = FormSurat::query();
+            $formSuratId = $request->formSuratId;
+            $data = InformasiSetelah::query()->where('form_surat_id', $formSuratId);
             return DataTables::eloquent($data)
-                ->addColumn('icon_fsurat', function ($row) {
+                ->addColumn('gambar_isetelah', function ($row) {
                     $output = '';
-                    if ($row->icon_fsurat == null) {
+                    if ($row->gambar_isetelah == null) {
                         $output = '-';
                     } else {
                         $output = '
-                    <a href="' . asset('upload/surat/' . $row->icon_fsurat) . '" target="_blank">
-                        <img src="' . asset('upload/surat/' . $row->icon_fsurat) . '" alt="Kosong" style="height: 100px;" />
+                    <a href="' . asset('upload/informasiSetelah/' . $row->gambar_isetelah) . '" target="_blank">
+                        <img src="' . asset('upload/informasiSetelah/' . $row->gambar_isetelah) . '" alt="Kosong" style="height: 100px;" />
                     </a>
                     ';
                     }
@@ -36,46 +36,46 @@ class ListSuratController extends Controller
                     return $output;
                 })
                 ->addColumn('action', function ($row) {
-                    $output = '
-                    <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            Action
-                        </button>
-                        <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                            <li><a 
-                            class="dropdown-item btn-edit" 
-                            href="#" 
-                            data-typemodal="mediumModal"
-                            data-urlcreate="' . url('surat/listSurat/' . $row->id . '/edit') . '">Edit</a></li>
-
-                            <li><a class="dropdown-item btn-delete" href="#" 
-                            data-url="' . url('surat/listSurat/' . $row->id) . '?_method=delete">Delete</a></li>
-
-                            <li><a class="dropdown-item" href="' . url('surat/petunjukAwal?formSuratId=' . $row->id) . '" target="_blank">Petunjuk Awal</a></li>
-
-                            <li><a class="dropdown-item" href="' . url('surat/petunjukAkhir?formSuratId=' . $row->id) . '" target="_blank">Petunjuk Akhir</a></li>
-                        </ul>
-                    </div>
+                    $buttonUpdate = '
+                    <a class="btn btn-warning btn-edit btn-sm" 
+                    data-typemodal="mediumModal"
+                    data-urlcreate="' . url('surat/InformasiSetelah/' . $row->id . '/edit') . '"
+                    data-modalId="mediumModal"
+                    >
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
                     ';
-                    return '
-                    <div class="text-center">'
-                        . $output .
-                        '</div>';
+                    $buttonDelete = '
+                    <button type="button" class="btn-delete btn btn-danger btn-sm" data-url="' . url('surat/InformasiSetelah/' . $row->id) . '?_method=delete">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                    ';
+
+                    $button = '
+                <div class="text-center">
+                    ' . $buttonUpdate . '
+                    ' . $buttonDelete . '
+                </div>
+                ';
+                    return $button;
                 })
-                ->rawColumns(['action', 'icon_fsurat'])
+                ->rawColumns(['action', 'gambar_isetelah'])
                 ->toJson();
         }
-        return view('surat::listSurat.index');
+        return view('surat::InformasiSetelah.index', [
+            'formSuratId' => $request->formSuratId
+        ]);
     }
 
     /**
      * Show the form for creating a new resource.
      * @return Renderable
      */
-    public function create()
+    public function create(Request $request)
     {
-        $action = url('surat/listSurat');
-        return view('surat::listSurat.form', compact('action'));
+        $formSuratId = $request->formSuratId;
+        $action = url('surat/petunjukAkhir?formSuratId=' . $formSuratId);
+        return view('surat::InformasiSetelah.form', compact('action'));
     }
 
     /**
@@ -83,13 +83,13 @@ class ListSuratController extends Controller
      * @param Request $request
      * @return Renderable
      */
-    public function store(FormlistSuratRequest $request)
+    public function store(Request $request)
     {
-        $uploadFile = $request->file('icon_fsurat');
-        $fileName = UtilsHelper::uploadFile($uploadFile, 'surat', null, 'form_surat', 'icon_fsurat');
+        $uploadFile = $request->file('gambar_isetelah');
+        $fileName = UtilsHelper::uploadFile($uploadFile, 'InformasiSetelah', null, 'informasi_setelah', 'gambar_isetelah');
         $data = $request->all();
-        $mergeData = array_merge($data, ['icon_fsurat' => $fileName]);
-        FormSurat::create($mergeData);
+        $mergeData = array_merge($data, ['gambar_isetelah' => $fileName]);
+        InformasiSetelah::create($mergeData);
         return response()->json('Berhasil tambah data', 201);
     }
 
@@ -108,11 +108,12 @@ class ListSuratController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function edit($id)
+    public function edit(Request $request, $id)
     {
-        $action = url('surat/listSurat/' . $id . '?_method=put');
-        $row = FormSurat::find($id);
-        return view('surat::listSurat.form', compact('action', 'row'));
+        $formSuratId = $request->formSuratId;
+        $action = url('surat/petunjukAkhir/' . $id . '?_method=put');
+        $row = InformasiSetelah::find($id);
+        return view('surat::InformasiSetelah.form', compact('action', 'row'));
     }
 
     /**
@@ -121,12 +122,17 @@ class ListSuratController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update(FormlistSuratRequest $request, $id)
+    public function update(Request $request, $id)
     {
+
+        $uploadFile = $request->file('gambar_isetelah');
+        $fileName = UtilsHelper::uploadFile($uploadFile, 'InformasiSetelah', $id, 'informasi_setelah', 'gambar_isetelah');
+
         $dataRequest = $request->except(['_method', '_token']);
         $data = $dataRequest;
+        $mergeData = array_merge($data, ['gambar_isetelah' => $fileName]);
 
-        FormSurat::find($id)->update($data);
+        InformasiSetelah::find($id)->update($mergeData);
         return response()->json('Berhasil update data', 200);
     }
 
@@ -138,8 +144,8 @@ class ListSuratController extends Controller
     public function destroy($id)
     {
         //
-        UtilsHelper::deleteFile($id, 'form_surat', 'surat', 'icon_fsurat');
-        FormSurat::destroy($id);
+        UtilsHelper::deleteFile($id, 'informasi_setelah', 'informasiSetelah', 'gambar_isetelah');
+        InformasiSetelah::destroy($id);
         return response()->json('Berhasil hapus data', 200);
     }
 }
