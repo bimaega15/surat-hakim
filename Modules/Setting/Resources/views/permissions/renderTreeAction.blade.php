@@ -1,9 +1,9 @@
 @php
-$structureTree = UtilsHelp::createStructureTree();
+$structureTree = UtilsHelp::createStructureTreePermission();
 $hiddenTree = UtilsHelp::handleSidebar($structureTree);
 
 ob_start();
-echo UtilsHelp::renderTree($structureTree, null, $hiddenTree);
+echo UtilsHelp::renderTreePermissions($structureTree, null, $hiddenTree);
 $outputTree = ob_get_clean();
 @endphp
 

@@ -1,9 +1,9 @@
 @php
-$structureTree = UtilsHelp::createStructureTree();
+$structureTree = UtilsHelp::createStructureTreePermission();
 $hiddenTree = UtilsHelp::handleSidebar($structureTree);
 
 ob_start();
-echo UtilsHelp::renderTree($structureTree, null, $hiddenTree);
+echo UtilsHelp::renderTreePermissions($structureTree, null, $hiddenTree);
 $outputTree = ob_get_clean();
 @endphp
 
@@ -14,6 +14,6 @@ $outputTree = ob_get_clean();
         </div>
     </div>
 </div>
-<script class="url_rendermenu_form" data-url="{{ route('menu.renderTree') }}"></script>
-<script class="url_sortAndNested" data-url="{{ route('menu.sortAndNested') }}"></script>
-<script src="{{ asset('js/setting/menu/nested.js') }}"></script>
+<script class="url_rendermenu_form" data-url="{{ route('permissions.renderTree') }}"></script>
+<script class="url_sortAndNested" data-url="{{ route('permissions.sortAndNested') }}"></script>
+<script src="{{ asset('js/setting/permissions/nested.js') }}"></script>

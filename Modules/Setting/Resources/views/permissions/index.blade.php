@@ -15,12 +15,16 @@
                         Data Permissions
                     </div>
                     <div>
-                        <x-button-main 
-                        title="Refresh" 
-                        className="btn-add" 
-                        typeModal="largeModal"
-                        urlCreate="{{ url('setting/permissions') }}" 
-                        icon='<i class="bx bx-refresh me-sm-1"></i>'/>
+                        <x-button-main title="Akses" className="btn-access" typeModal="largeModal"
+                            urlCreate="{{ url('setting/permissions/accessRole') }}" icon='<i class="bx bx-user-plus me-sm-1"></i>' color="btn-info" />
+
+                        <x-button-main title="Tambah" className="btn-add" typeModal="largeModal"
+                            urlCreate="{{ url('setting/permissions/create') }}" icon='<i class="bx bx-plus me-sm-1"></i>' />
+
+                        <x-button-main title="Refresh" className="btn-synchrone" typeModal="largeModal"
+                            urlCreate="{{ url('setting/permissions/refresh') }}"
+                            icon='<i class="bx bx-refresh me-sm-1"></i>'
+                            color="btn-success" />
                     </div>
                 </div>
             </h5>

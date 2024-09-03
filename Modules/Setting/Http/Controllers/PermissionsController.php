@@ -8,36 +8,33 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Models\Menu;
 use App\Models\MenuPermissions;
-use Modules\Setting\Http\Requests\CreatePostMenuRequest;
+use Modules\Setting\Http\Requests\CreatePostMenuPermission;
+use Spatie\Permission\Models\Role;
 
 class PermissionsController extends Controller
 {
     public function index(Request $request)
     {
-        $createTree = UtilsHelper::createStructureTree();
         if ($request->ajax()) {
-            $createTree = UtilsHelper::createStructureTree();
+            $createTree = UtilsHelper::createStructureTreePermission();
             return view('setting::permissions.renderTree', compact('createTree'))->render();
         }
 
         return view('setting::permissions.index');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     * @return Renderable
-     */
     public function create()
     {
-        $daftarMenu = Menu::all();
+        $daftarMenu = MenuPermissions::all();
+        $action = url('setting/permissions');
+        $daftarMenu = MenuPermissions::all();
         $array_menu = [];
         foreach ($daftarMenu as $key => $item) {
             $array_menu[] = [
-                'label' => $item->nama_menu,
+                'label' => $item->nama_mpermissions ?? $item->link_mpermissions,
                 'id' => $item->id,
             ];
         }
-        $action = url('setting/menu');
         return view('setting::permissions.form', compact('daftarMenu', 'action', 'array_menu'));
     }
 
@@ -49,39 +46,32 @@ class PermissionsController extends Controller
     public function store(Request $request)
     {
         //
-        $data = UtilsHelper::getUrlPermission();
+        MenuPermissions::create($request->all());
+        return response()->json('Berhasil menambahkan data permissions', 201);
+    }
+
+    public function refresh(Request $request)
+    {
+        //
+        $data = UtilsHelper::getUrlMenuPermission();
         $lengthData = count($data);
         $dataDb = [];
+        $no = 1;
+        MenuPermissions::truncate();
         foreach ($data as $key => $result) {
-            $check_link_mpermissions = MenuPermissions::where('link_mpermissions', $result)->first();
-            $no = 1;
-            if($check_link_mpermissions == null){
-                $dataDb = [
-                    'root_mpermissions' => null,
-                    'no_mpermissions' => $no,
-                    'nama_mpermissions' => null,
-                    'link_mpermissions' => $result,
-                    'isnode_mpermissions' => 0,
-                    'ischildren_mpermissions' => 1,
-                    'childrenmenu_mpermissions' => null,
-                ];
-                MenuPermissions::create($dataDb);
-            } else {
-                $dataDb = [
-                    'root_mpermissions' => null,
-                    'no_mpermissions' => $no,
-                    'nama_mpermissions' => null,
-                    'link_mpermissions' => $result,
-                    'isnode_mpermissions' => 0,
-                    'ischildren_mpermissions' => 1,
-                    'childrenmenu_mpermissions' => null,
-                ];
-                MenuPermissions::find($check_link_mpermissions->id)->update($dataDb);
-            }
+            $dataDb[] = [
+                'root_mpermissions' => null,
+                'no_mpermissions' => $no,
+                'nama_mpermissions' => $result,
+                'link_mpermissions' => $result,
+                'isnode_mpermissions' => 0,
+                'ischildren_mpermissions' => 1,
+                'childrenmenu_mpermissions' => null,
+            ];
             $no++;
         }
-
-        return response()->json('Berhasil management '.$lengthData.' permission menu', 201);
+        MenuPermissions::insert($dataDb);
+        return response()->json('Berhasil management ' . $lengthData . ' permission menu', 201);
     }
 
     /**
@@ -101,16 +91,16 @@ class PermissionsController extends Controller
      */
     public function edit($id)
     {
-        $menu = Menu::find($id);
-        $daftarMenu = Menu::all();
-        $menuRootId = Menu::where('children_menu', 'like', '%' . $id . '%')->first();
-        $menuChildren = json_encode($menu->children_menu);
-        $action = url('setting/menu/'.$id.'?_method=PUT');
-        $daftarMenu = Menu::all();
+        $menu = MenuPermissions::find($id);
+        $daftarMenu = MenuPermissions::all();
+        $menuRootId = MenuPermissions::where('childrenmenu_mpermissions', 'like', '%' . $id . '%')->first();
+        $menuChildren = json_encode($menu->childrenmenu_mpermissions);
+        $action = url('setting/permissions/' . $id . '?_method=PUT');
+        $daftarMenu = MenuPermissions::all();
         $array_menu = [];
         foreach ($daftarMenu as $key => $item) {
             $array_menu[] = [
-                'label' => $item->nama_menu,
+                'label' => $item->nama_mpermissions ?? $item->link_mpermissions,
                 'id' => $item->id,
             ];
         }
@@ -123,18 +113,18 @@ class PermissionsController extends Controller
      * @param int $id
      * @return Renderable
      */
-    public function update(CreatePostMenuRequest $request, $id)
+    public function update(CreatePostMenuPermission $request, $id)
     {
         //
         $data = $request->except(['_method']);
 
-        Menu::find($id)->update($data);
+        MenuPermissions::find($id)->update($data);
         $menu_id = $id;
 
-        $menu_root = $request->input('menu_root');
+        $menu_root = $request->input('root_mpermissions');
         if ($menu_root != null) {
-            $getMenu = Menu::find($menu_root);
-            $getMenuChildren = json_decode($getMenu->children_menu, 1);
+            $getMenu = MenuPermissions::find($menu_root);
+            $getMenuChildren = json_decode($getMenu->childrenmenu_mpermissions, 1);
             $getMenuChildren = implode(',', $getMenuChildren);
 
             $children_menu_update = $menu_id;
@@ -144,17 +134,17 @@ class PermissionsController extends Controller
             $children_menu_update = explode(',', $children_menu_update);
             $children_menu_update = json_encode($children_menu_update);
 
-            $getMenu->children_menu = $children_menu_update;
-            $getMenu->is_node = 1;
-            $getMenu->is_children = 0;
+            $getMenu->childrenmenu_mpermissions = $children_menu_update;
+            $getMenu->isnode_mpermissions = 1;
+            $getMenu->ischildren_mpermissions = 0;
             $getMenu->save();
         }
 
-        $queryLike = Menu::where('children_menu', 'like', '%' . $id . '%')
+        $queryLike = MenuPermissions::where('childrenmenu_mpermissions', 'like', '%' . $id . '%')
             ->where('id', '!=', $menu_root)->first();
         if ($queryLike != null) {
             if ($queryLike->id != $menu_id) {
-                $getMenuLike = $queryLike->children_menu;
+                $getMenuLike = $queryLike->childrenmenu_mpermissions;
                 $explodeData = json_decode($getMenuLike, true);
 
                 $resultData = array_filter($explodeData, function ($value) use ($id) {
@@ -169,9 +159,9 @@ class PermissionsController extends Controller
                     $isNode = 1;
                     $isChildren = 0;
                 }
-                $queryLike->children_menu = $implodeData;
-                $queryLike->is_node = $isNode;
-                $queryLike->is_children = $isChildren;
+                $queryLike->childrenmenu_mpermissions = $implodeData;
+                $queryLike->isnode_mpermissions = $isNode;
+                $queryLike->ischildren_mpermissions = $isChildren;
                 $queryLike->save();
             }
         }
@@ -204,10 +194,10 @@ class PermissionsController extends Controller
         $result = [];
         foreach ($data as $key => $item) {
             $result[] = $item["id"];
-            Menu::find($item['id'])->update([
-                'children_menu' => null,
-                'is_node' => 0,
-                'is_children' => 1
+            MenuPermissions::find($item['id'])->update([
+                'childrenmenu_mpermissions' => null,
+                'isnode_mpermissions' => 0,
+                'ischildren_mpermissions' => 1
             ]);
 
             if (isset($item["children"])) {
@@ -217,10 +207,10 @@ class PermissionsController extends Controller
                     $resultArrayId[] = $value['id'];
                 }
                 $implodeChildren = json_encode($resultArrayId);
-                Menu::find($item['id'])->update([
-                    'children_menu' => $implodeChildren,
-                    'is_node' => 1,
-                    'is_children' => 0
+                MenuPermissions::find($item['id'])->update([
+                    'childrenmenu_mpermissions' => $implodeChildren,
+                    'isnode_mpermissions' => 1,
+                    'ischildren_mpermissions' => 0
                 ]);
 
                 $result = array_merge($result, $this->flattenDataUpdate($item["children"]));
@@ -235,10 +225,10 @@ class PermissionsController extends Controller
         //
         $nestedTree = json_decode(request()->input('nestedTree'), true);
         $dataFlatten = (array) $this->flattenData($nestedTree);
-        $getDataMenu = Menu::find($id);
+        $getDataMenu = MenuPermissions::find($id);
         $arrayMerge = [];
-        if ($getDataMenu->children_menu != null) {
-            $childrenMenu = json_decode($getDataMenu->children_menu, true);
+        if ($getDataMenu->childrenmenu_mpermissions != null) {
+            $childrenMenu = json_decode($getDataMenu->childrenmenu_mpermissions, true);
             $arrayMerge = array_merge([$id], $childrenMenu);
         } else {
             $arrayMerge = [$id];
@@ -253,18 +243,18 @@ class PermissionsController extends Controller
         });
         $someId = array_values($result);
         foreach ($someId as $key => $value) {
-            $getMenu = Menu::find($value);
+            $getMenu = MenuPermissions::find($value);
             if ($getMenu) {
-                $getMenu->no_menu = $key + 1;
+                $getMenu->no_mpermissions = $key + 1;
                 $getMenu->save();
             }
         }
 
         // check is node
-        $queryLike = Menu::where('children_menu', 'like', '%' . $id . '%')
+        $queryLike = MenuPermissions::where('childrenmenu_mpermissions', 'like', '%' . $id . '%')
             ->first();
         if ($queryLike != null) {
-            $childrenMenuData = json_decode($queryLike->children_menu, true);
+            $childrenMenuData = json_decode($queryLike->childrenmenu_mpermissions, true);
             $resultData = array_filter($childrenMenuData, function ($value) use ($id) {
                 return $value !== $id;
             });
@@ -277,26 +267,26 @@ class PermissionsController extends Controller
                 $isChildren = 0;
             }
 
-            $menuUpdate = Menu::find($queryLike->id);
-            $menuUpdate->children_menu = $implodeData;
-            $menuUpdate->is_node = $isNode;
-            $menuUpdate->is_children = $isChildren;
+            $menuUpdate = MenuPermissions::find($queryLike->id);
+            $menuUpdate->childrenmenu_mpermissions = $implodeData;
+            $menuUpdate->isnode_mpermissions = $isNode;
+            $menuUpdate->ischildren_mpermissions = $isChildren;
             $menuUpdate->save();
         }
 
-        Menu::whereIn('id', $arrayMerge)->delete();
+        MenuPermissions::whereIn('id', $arrayMerge)->delete();
         return response()->json('Berhasil menghapus list menu');
     }
 
     public function renderTree()
     {
-        $createTree = UtilsHelper::createStructureTree();
+        $createTree = UtilsHelper::createStructureTreePermission();
         return view('setting::permissions.renderTreeAction', compact('createTree'))->render();
     }
 
     public function dataTable()
     {
-        $data = Menu::where('is_children', 1)->get();
+        $data = MenuPermissions::where('ischildren_mpermissions', 1)->get();
         return response()->json($data);
     }
 
@@ -305,14 +295,26 @@ class PermissionsController extends Controller
         $nestedTree = json_decode(request()->input('nestedTree'), true);
         $dataFlatten = (array) $this->flattenData($nestedTree);
         foreach ($dataFlatten as $key => $value) {
-            $getMenu = Menu::find($value);
+            $getMenu = MenuPermissions::find($value);
             if ($getMenu) {
-                $getMenu->no_menu = $key + 1;
+                $getMenu->no_mpermissions = $key + 1;
                 $getMenu->save();
             }
         }
 
         (array) $this->flattenDataUpdate($nestedTree);
         return response()->json('Berhasil sort and nested list menu');
+    }
+
+    public function accessRole()
+    {
+        $role = Role::all();
+        $action = url('setting/permissions/storeRole');
+        return view('setting::permissions.accessRole', compact('role', 'action'));
+    }
+
+    public function storeRole()
+    {
+        
     }
 }

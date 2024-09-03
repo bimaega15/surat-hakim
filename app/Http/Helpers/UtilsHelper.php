@@ -3,6 +3,7 @@
 namespace App\Http\Helpers;
 
 use App\Models\Menu;
+use App\Models\MenuPermissions;
 use App\Models\Pembelian;
 use App\Models\Pengaturan;
 use App\Models\Penjualan;
@@ -12,6 +13,7 @@ use DateTime;
 use Illuminate\Support\Facades\DB;
 use File;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Spatie\Permission\Models\Permission;
 
 class UtilsHelper
@@ -157,20 +159,32 @@ class UtilsHelper
 
     public static function getUrlPermission()
     {
-        $routes = \Route::getRoutes();
-        $routeUri = [];
+        $routes = Route::getRoutes();
+        $dataRoutes = [];
+        $throughRoutes = ['sanctum.csrf-cookie', 'ignition.healthCheck', 'ignition.executeSolution', 'ignition.updateConfig'];
         foreach ($routes as $route) {
-            if (!str_contains($route->getName(), 'unisharp')) {
-                if (!str_contains($route->getName(), 'sanctum')) {
-                    if (!str_contains($route->getName(), 'ignition')) {
-                        if ($route->getName() != null) {
-                            $routeUri[$route->uri()] = $route->getName();
-                        }
-                    }
+            if ($route->getName() != null) {
+                if (!in_array($route->getName(), $throughRoutes)) {
+                    $dataRoutes[] = $route->getName();
                 }
             }
         }
-        return $routeUri;
+        return $dataRoutes;
+    }
+
+    public static function getUrlMenuPermission()
+    {
+        $routes = Route::getRoutes();
+        $dataRoutes = [];
+        $throughRoutes = ['sanctum.csrf-cookie', 'ignition.healthCheck', 'ignition.executeSolution', 'ignition.updateConfig'];
+        foreach ($routes as $route) {
+            if ($route->getName() != null) {
+                if (!in_array($route->getName(), $throughRoutes)) {
+                    $dataRoutes[] = $route->getName();
+                }
+            }
+        }
+        return $dataRoutes;
     }
 
     public static function formatDate($tanggal_transaction)
@@ -459,6 +473,34 @@ class UtilsHelper
         return $listMenu;
     }
 
+    public static function createStructureTreePermission()
+    {
+        $daftarPermissions = MenuPermissions::orderBy('no_mpermissions', 'asc')->orderBy('id', 'asc')->get();
+        $listMenu = [];
+        foreach ($daftarPermissions as $key => $value) {
+            if ($value->isnode_mpermissions == '1') {
+                if ($value->childrenmenu_mpermissions != null || $value->childrenmenu_mpermissions != '') {
+                    $explodeMenu = json_decode($value->childrenmenu_mpermissions, true);
+                    $listMenu[] = [
+                        'id' => $value->id,
+                        'children' => $explodeMenu
+                    ];
+                } else {
+                    $listMenu[] = [
+                        'id' => $value->id,
+                        'children' => null
+                    ];
+                }
+            } else {
+                $listMenu[] = [
+                    'id' => $value->id,
+                    'children' => null,
+                ];
+            }
+        }
+        return $listMenu;
+    }
+
     public static function renderSidebar($data, $parentId = null, $pushData = null)
     {
         foreach ($data as $index => $item) {
@@ -546,6 +588,11 @@ class UtilsHelper
         $menu = Menu::find($id);
         return $menu;
     }
+    public static function menuPermissionsFilterById($id)
+    {
+        $menu = MenuPermissions::find($id);
+        return $menu;
+    }
 
     public static function renderTree($data, $parentId = null, $pushData = null)
     {
@@ -608,6 +655,89 @@ class UtilsHelper
                         </div>';
                 $childIds = $item['children'];
                 UtilsHelper::renderTree($data, $childIds);
+                echo '
+                    </li>
+                ';
+            }
+        }
+        echo  '
+            </ol>';
+    }
+
+    public static function renderTreePermissions($data, $parentId = null, $pushData = null)
+    {
+        echo  '
+            <ol class="dd-list">';
+        foreach ($data as $index => $item) {
+            if (isset($pushData[$item['id']])) {
+                if ($pushData[$item['id']]) {
+                    continue;
+                }
+            }
+
+            $menu_item = UtilsHelper::menuPermissionsFilterById($item['id']);
+            $dataChildren = $menu_item->childrenmenu_mpermissions != null ? json_encode($menu_item->childrenmenu_mpermissions) : null;
+            $safeDataChildren = htmlspecialchars($dataChildren, ENT_QUOTES, 'UTF-8');
+            $buttonCheckbox = '
+            <div class="form-check">
+                <input class="form-check-input input-checkbox" type="checkbox" value="' . $item['id'] . '" id="checkbox-' . $item['id'] . '" data-id="' . $item['id'] . '" data-children="' . $safeDataChildren . '">
+                <label class="form-check-label" for="checkbox-' . $item['id'] . '">
+                </label>
+            </div>
+                ';
+            $buttonUpdate = '
+                <a href="' . route('permissions.edit', $menu_item->id) . '" class="btn btn-warning btn-edit btn-sm" style="padding: 5px 5px;" data-typemodal="largeModal">
+                    <i class="fa-solid fa-pencil"></i>
+                </a>
+                ';
+            $buttonDelete = '
+                <button type="button" class="btn-delete btn btn-danger btn-sm" data-url="' . url('setting/permissions/' . $menu_item->id . '?_method=delete') . '" style="padding: 5px 5px;">
+                    <i class="fa-solid fa-trash"></i>
+                </button>
+                ';
+
+            if ($item['children'] === null && ($parentId === null || in_array($item['id'], $parentId))) {
+                $namePermissions = $menu_item->nama_mpermissions != null ? $menu_item->nama_mpermissions : $menu_item->link_mpermissions;
+                echo  '
+                <li class="dd-item dd3-item" data-id="' . $item['id'] . '">
+                    <div class="dd-handle dd3-handle"></div>
+                    <div class="dd3-content" style="padding: 3px 10px 3px 45px">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="' . url($menu_item->link_mpermissions) . '">
+                                 &nbsp; ' . $namePermissions . '
+                                </a>
+                            </div>
+                            <div class="d-flex">
+                                ' . $buttonCheckbox . '
+                                ' . $buttonUpdate . '
+                                ' . $buttonDelete . '
+                            </div>
+                        </div>
+                    </div>
+                </li>
+                ';
+            } elseif ($item['children'] !== null && ($parentId === null || in_array($item['id'], $parentId))) {
+                $namePermissions = $menu_item->nama_mpermissions != null ? $menu_item->nama_mpermissions : $menu_item->link_mpermissions;
+                echo  '
+                    <li class="dd-item dd3-item" data-id="' . $item['id'] . '">
+                        <div class="dd-handle dd3-handle"></div>
+                            <div class="dd3-content" style="padding: 3px 10px 3px 45px">
+                                <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a href="' . url($menu_item->link_mpermissions) . '">
+                                    ' . $namePermissions . '
+                                    </a>
+                                </div>
+                                <div class="d-flex">
+                                    ' . $buttonCheckbox . '
+                                    ' . $buttonUpdate . '
+                                    ' . $buttonDelete . '
+                                </div>
+                            </div>
+                        </div>';
+                $childIds = $item['children'];
+                UtilsHelper::renderTreePermissions($data, $childIds);
                 echo '
                     </li>
                 ';

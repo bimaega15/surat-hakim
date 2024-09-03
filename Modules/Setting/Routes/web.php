@@ -12,7 +12,7 @@
 */
 
 Route::prefix('setting')->middleware('auth')->group(function () {
-    Route::get('/', 'SettingController@index');
+    Route::get('/', 'SettingController@index')->name('setting.index');
     Route::get('/logout', 'SettingController@logout');
     Route::resource('roles', 'RolesController');
     Route::resource('pengaturan', 'PengaturanController');
@@ -29,8 +29,11 @@ Route::prefix('setting')->middleware('auth')->group(function () {
     // permission
     Route::resource('permissions', 'PermissionsController')->except(['show']);
     Route::get('/permissions/renderTree', 'PermissionsController@renderTree')->name('permissions.renderTree');
+    Route::get('/permissions/accessRole', 'PermissionsController@accessRole')->name('permissions.accessRole');
+    Route::post('/permissions/storeRole', 'PermissionsController@storeRole')->name('permissions.storeRole');
     Route::get('/permissions/dataTable', 'PermissionsController@dataTable')->name('permissions.dataTable');
     Route::get('/permissions/sortAndNested', 'PermissionsController@sortAndNested')->name('permissions.sortAndNested');
+    Route::post('/permissions/refresh', 'PermissionsController@refresh')->name('permissions.refresh');
 
 
 });

@@ -21,9 +21,10 @@
 
     <ul class="menu-inner py-1">
         @php
-            $allowedDashboard = ['admin', 'pelanggan', 'kasir', 'karyawan gudang'];
+            $allowedDashboard = ['admin'];
         @endphp
         @if (in_array($myRoles, $allowedDashboard))
+            <li class="menu-header small text-uppercase"><span class="menu-header-text">Dashboard</span></li>
             <li class="menu-item {{ request()->is('dashboard') ? 'active' : '' }}">
                 <a href="{{ url('dashboard') }}" class="menu-link">
                     <i class="menu-icon tf-icons bx bx-home-circle"></i>
@@ -32,78 +33,92 @@
             </li>
         @endif
         @php
-        $allowedMyProfile = ['admin', 'pelanggan', 'kasir', 'karyawan gudang'];
+            $allowedMyProfile = ['admin'];
         @endphp
         @if (in_array($myRoles, $allowedMyProfile))
-        <li class="menu-item {{ request()->is('myProfile') ? 'active' : '' }}">
-            <a href="{{ url('myProfile') }}" class="menu-link">
-                <i class='menu-icon tf-icons bx bxs-user-circle'></i>
-                <div data-i18n="Basic">My Profile</div>
-            </a>
-        </li>
+            <li class="menu-item {{ request()->is('myProfile') ? 'active' : '' }}">
+                <a href="{{ url('myProfile') }}" class="menu-link">
+                    <i class='menu-icon tf-icons bx bxs-user-circle'></i>
+                    <div data-i18n="Basic">My Profile</div>
+                </a>
+            </li>
         @endif
 
         @php
-        $activeRoutesPengaturan = [
-            'setting/menu',
-            'setting/permissions',
-            'setting/user',
-            'setting/roles',
-            'setting/pengaturan',
-        ];
-    @endphp
-    @php
-    $allowedPengaturan = ['admin', 'kasir'];
-    @endphp
-    @if (in_array($myRoles, $allowedPengaturan))
-        <li class="menu-header small text-uppercase"><span class="menu-header-text">Konfigurasi</span></li>
-        <li class="menu-item {{ collect($activeRoutesPengaturan)->contains(function ($route) {
-                return request()->is($route) || str_starts_with(request()->url(), url($route));
-            })
-                ? 'active open'
-                : '' }}">
-            <a href="javascript:void(0);" class="menu-link menu-toggle">
-                <i class="menu-icon tf-icons bx bxs-lock"></i>
-                <div data-i18n="Pengaturan">Pengaturan</div>
-            </a>
-            <ul class="menu-sub">
-                @if (in_array($myRoles, ['admin']))
-                <li class="menu-item {{ request()->is('setting/menu') ? 'active' : '' }}">
-                    <a href="{{ url('setting/menu') }}" class="menu-link">
-                        <div data-i18n="Menu">Menu</div>
-                    </a>
-                </li>
-                @endif
-                @if (in_array($myRoles, ['admin']))
-                <li class="menu-item {{ request()->is('setting/permissions') ? 'active' : '' }}">
-                    <a href="{{ url('setting/permissions') }}" class="menu-link">
-                        <div data-i18n="Permission">Permission</div>
-                    </a>
-                </li>
-                @endif
-                <li class="menu-item {{ request()->is('setting/user') ? 'active' : '' }}">
-                    <a href="{{ url('setting/user') }}" class="menu-link">
-                        <div data-i18n="User">User</div>
-                    </a>
-                </li>
-                @if (in_array($myRoles, ['admin']))
-                <li class="menu-item {{ request()->is('setting/roles') ? 'active' : '' }}">
-                    <a href="{{ url('setting/roles') }}" class="menu-link">
-                        <div data-i18n="Role">Role</div>
-                    </a>
-                </li>
-                @endif
-                @if (in_array($myRoles, ['admin']))
-                <li class="menu-item {{ request()->is('setting/pengaturan') ? 'active' : '' }}">
-                    <a href="{{ url('setting/pengaturan') }}" class="menu-link">
-                        <div data-i18n="Profile">Profile</div>
-                    </a>
-                </li>
-                @endif
-    
-            </ul>
-        </li>
-    @endif
+            $allowedSurat = ['admin'];
+        @endphp
+        @if (in_array($myRoles, $allowedSurat))
+            <li class="menu-item {{ request()->is('surat/listSurat') ? 'active' : '' }}">
+                <a href="{{ url('surat/listSurat') }}" class="menu-link">
+                    <i class='menu-icon tf-icons bx bxs-envelope'></i>
+                    <div data-i18n="Basic">Surat</div>
+                </a>
+            </li>
+        @endif
+
+
+        @php
+            $activeRoutesPengaturan = [
+                'setting/menu',
+                'setting/permissions',
+                'setting/user',
+                'setting/roles',
+                'setting/pengaturan',
+            ];
+        @endphp
+        @php
+            $allowedPengaturan = ['admin'];
+        @endphp
+        @if (in_array($myRoles, $allowedPengaturan))
+            <li class="menu-header small text-uppercase"><span class="menu-header-text">Konfigurasi</span></li>
+            <li
+                class="menu-item {{ collect($activeRoutesPengaturan)->contains(function ($route) {
+                    return request()->is($route) || str_starts_with(request()->url(), url($route));
+                })
+                    ? 'active open'
+                    : '' }}">
+                <a href="javascript:void(0);" class="menu-link menu-toggle">
+                    <i class="menu-icon tf-icons bx bxs-lock"></i>
+                    <div data-i18n="Pengaturan">Pengaturan</div>
+                </a>
+                <ul class="menu-sub">
+                    @if (in_array($myRoles, ['admin']))
+                        <li class="menu-item {{ request()->is('setting/menu') ? 'active' : '' }}">
+                            <a href="{{ url('setting/menu') }}" class="menu-link">
+                                <div data-i18n="Menu">Menu</div>
+                            </a>
+                        </li>
+                    @endif
+                    @if (in_array($myRoles, ['admin']))
+                        <li class="menu-item {{ request()->is('setting/permissions') ? 'active' : '' }}">
+                            <a href="{{ url('setting/permissions') }}" class="menu-link">
+                                <div data-i18n="Permission">Permission</div>
+                            </a>
+                        </li>
+                    @endif
+                    <li class="menu-item {{ request()->is('setting/user') ? 'active' : '' }}">
+                        <a href="{{ url('setting/user') }}" class="menu-link">
+                            <div data-i18n="User">User</div>
+                        </a>
+                    </li>
+                    @if (in_array($myRoles, ['admin']))
+                        <li class="menu-item {{ request()->is('setting/roles') ? 'active' : '' }}">
+                            <a href="{{ url('setting/roles') }}" class="menu-link">
+                                <div data-i18n="Role">Role</div>
+                            </a>
+                        </li>
+                    @endif
+                    @if (in_array($myRoles, ['admin']))
+                        <li class="menu-item {{ request()->is('setting/pengaturan') ? 'active' : '' }}">
+                            <a href="{{ url('setting/pengaturan') }}" class="menu-link">
+                                <div data-i18n="Profile">Profile</div>
+                            </a>
+                        </li>
+                    @endif
+
+                </ul>
+            </li>
+        @endif
 
         <li class="menu-item {{ request()->is('setting/logout') ? 'active' : '' }}">
             <a href="{{ url('setting/logout') }}" class="menu-link">

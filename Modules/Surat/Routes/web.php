@@ -11,7 +11,9 @@
 |
 */
 
-Route::prefix('master')->middleware('auth')->group(function () {
-    Route::get('/', 'MasterController@index');
-    Route::resource('kategori', 'KategoriController');
+Route::prefix('surat')->group(function () {
+    Route::get('/', 'SuratController@index');
+    Route::resource('/listSurat', 'ListSuratController');
+    Route::resource('/petunjukAwal', 'PetunjukAwalController');
+    Route::resource('/petunjukAkhir', 'PetunjukAkhirController');
 });

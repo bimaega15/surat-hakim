@@ -13,8 +13,6 @@ function getListTableMenu() {
     var dataTableValue = $(".data_datatable").data("table");
     if (dataTableValue != "" && dataTableValue != null) {
         var data_datatable = JSON.parse(dataTableValue);
-        data_datatable = data_datatable.split(",");
-
         if (data_datatable != null) {
             if (data_datatable.length > 0) {
                 for (let i = 0; i < data_datatable.length; i++) {
@@ -32,7 +30,7 @@ function getListTableMenu() {
         success: function (data) {
             let output = `
             <tr>
-              <td colspan="5">
+              <td colspan="4">
                 <div class="text-center">
                   <strong>Tidak ada data</strong>
                 </div>
@@ -45,14 +43,13 @@ function getListTableMenu() {
                 var setDataTable = [];
                 setDataTable = data.map((item, index) => [
                     index + 1,
-                    item.nama_menu,
-                    item.icon_menu,
-                    item.link_menu,
+                    item.nama_mpermissions,
+                    item.link_mpermissions,
                     `
                     <div class="form-check">
                         <input class="form-check-input check-input-datatable" type="checkbox" value="${item.id
                     }" id="id_${item.id}" data-id="${item.id
-                    }" data-url="{{ url('master/menu/chooseMenu') }}"
+                    }" data-url="{{ url('setting/permissions/chooseMenu') }}"
                         ${check_input.includes(item.id) ? "checked" : ""}
                         >
                         <label class="form-check-label" for="id_${item.id}">
@@ -89,8 +86,8 @@ formSubmit.addEventListener("submit", function (event) {
     submitData();
 });
 
-$(document).off("click", 'input[name="is_node"]');
-$(document).on("click", 'input[name="is_node"]', function () {
+$(document).off("click", 'input[name="isnode_mpermissions"]');
+$(document).on("click", 'input[name="isnode_mpermissions"]', function () {
     if ($(this).is(":checked")) {
         value = 1;
     } else {
@@ -98,15 +95,15 @@ $(document).on("click", 'input[name="is_node"]', function () {
     }
 
     if (value == 1) {
-        $('input[name="is_children"]').prop("checked", false);
+        $('input[name="ischildren_mpermissions"]').prop("checked", false);
 
         $("#form-menu_children_id").removeClass("d-none");
         $("#form-menu_root_id").addClass("d-none");
     }
 });
 
-$(document).off("click", 'input[name="is_children"]');
-$(document).on("click", 'input[name="is_children"]', function () {
+$(document).off("click", 'input[name="ischildren_mpermissions"]');
+$(document).on("click", 'input[name="ischildren_mpermissions"]', function () {
     if ($(this).is(":checked")) {
         value = 1;
     } else {
@@ -114,7 +111,7 @@ $(document).on("click", 'input[name="is_children"]', function () {
     }
 
     if (value == 1) {
-        $('input[name="is_node"]').prop("checked", false);
+        $('input[name="isnode_mpermissions"]').prop("checked", false);
 
         $("#form-menu_children_id").addClass("d-none");
         $("#form-menu_root_id").removeClass("d-none");
@@ -124,13 +121,13 @@ $(document).on("click", 'input[name="is_children"]', function () {
 function submitData() {
     var formData = $(form)[0];
     var data = new FormData(formData);
-    data.delete("is_node");
-    data.delete("is_children");
+    data.delete("isnode_mpermissions");
+    data.delete("ischildren_mpermissions");
     data.delete("tableListMenu_length");
     data.delete("menu_root");
 
-    var is_node = $('input[name="is_node"]:checked').val();
-    var is_children = $('input[name="is_children"]:checked').val();
+    var isnode_mpermissions = $('input[name="isnode_mpermissions"]:checked').val();
+    var ischildren_mpermissions = $('input[name="ischildren_mpermissions"]:checked').val();
     var menu_root = $('select[name="menu_root"] option:selected').val();
     var link_menu = $('input[name="link_menu"]').val();
 
@@ -138,40 +135,40 @@ function submitData() {
         (value, index, self) => self.indexOf(value) === index
     );
 
-    if (is_node == null) {
-        is_node = 0;
+    if (isnode_mpermissions == null) {
+        isnode_mpermissions = 0;
     }
 
-    if (is_children == null) {
-        is_children = 0;
+    if (ischildren_mpermissions == null) {
+        ischildren_mpermissions = 0;
     }
 
     if (input_check.length > 0) {
-        is_node = 1;
-        is_children = 0;
+        isnode_mpermissions = 1;
+        ischildren_mpermissions = 0;
     }
 
     if (menu_root != null && menu_root != "") {
-        is_node = 0;
-        is_children = 1;
+        isnode_mpermissions = 0;
+        ischildren_mpermissions = 1;
     }
 
     if (link_menu == "#") {
-        is_node = 1;
-        is_children = 0;
+        isnode_mpermissions = 1;
+        ischildren_mpermissions = 0;
     }
 
-    if (is_node == 1) {
-        is_node = 1;
-        is_children = 0;
+    if (isnode_mpermissions == 1) {
+        isnode_mpermissions = 1;
+        ischildren_mpermissions = 0;
     }
 
     input_check = JSON.stringify(input_check);
 
-    data.append("is_node", is_node);
-    data.append("is_children", is_children);
-    data.append("children_menu", input_check);
-    data.append("menu_root", menu_root);
+    data.append("isnode_mpermissions", isnode_mpermissions);
+    data.append("ischildren_mpermissions", ischildren_mpermissions);
+    data.append("childrenmenu_mpermissions", input_check);
+    data.append("root_mpermissions", menu_root);
 
     $.ajax({
         type: "post",

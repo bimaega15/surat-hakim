@@ -5,6 +5,7 @@ var url_parent_id;
 var url_parent_name;
 var check_input = [];
 var myModal;
+var checkPermissions = [];
 
 function loadNested() {
     var url_menu = $(".url_rendermenu").data("url");
@@ -23,7 +24,18 @@ $(document).ready(function () {
     loadNested();
 
     // handle btn add data
-    body.on("click", ".btn-add", function () {
+    body.on("click", ".btn-add", function (e) {
+        e.preventDefault();
+
+        showModal({
+            url: $(this).data("urlcreate"),
+            title: "Form Menu",
+            type: "get",
+            modalId: $(this).data("typemodal"),
+        });
+    });
+
+    body.on("click", ".btn-synchrone", function () {
         const url = $(this).data('urlcreate');
         $.ajax({
             url,
@@ -31,8 +43,8 @@ $(document).ready(function () {
             dataType: 'json',
             beforeSend: function () {
                 clearError422();
-                $(".btn-add").attr("disabled", true);
-                $(".btn-add").html(disableButton);
+                $(".btn-synchrone").attr("disabled", true);
+                $(".btn-synchrone").html(disableButton);
             },
             success: function (data) {
                 Swal.fire({
@@ -43,15 +55,15 @@ $(document).ready(function () {
                 });
             },
             error: function (jqXHR, exception) {
-                $(".btn-add").attr("disabled", false);
-                $(".btn-add").html(enableButton);
+                $(".btn-synchrone").attr("disabled", false);
+                $(".btn-synchrone").html(enableButton);
                 if (jqXHR.status === 422) {
                     showErrors422(jqXHR);
                 }
             },
             complete: function () {
-                $(".btn-add").attr("disabled", false);
-                $(".btn-add").html(enableButton);
+                $(".btn-synchrone").attr("disabled", false);
+                $(".btn-synchrone").html(enableButton);
                 loadNested();
             },
         })
@@ -114,4 +126,58 @@ $(document).ready(function () {
 
         handleDelete(this, serializedData);
     });
+
+    body.on('click', '.input-checkbox', function(e) {
+        const id = $(this).data('id');
+        const children = $(this).data('children');
+        
+        if (children) {
+            let jsonParse;
+            try {
+                jsonParse = JSON.parse(JSON.parse(children));
+            } catch (e) {
+                console.error("Failed to parse JSON:", e);
+                return;
+            }
+        
+            if ($(this).is(":checked")) {
+                if (Array.isArray(jsonParse) && jsonParse.length > 0) {
+                    jsonParse.forEach(item => {
+                        $('.input-checkbox[data-id="' + item + '"]').prop('checked', true);
+                    });
+                    checkPermissions.push(...jsonParse);
+                }
+            } else {
+                if (Array.isArray(jsonParse) && jsonParse.length > 0) {
+                    jsonParse.forEach(item => {
+                        $('.input-checkbox[data-id="' + item + '"]').prop('checked', false);
+                    });
+                    checkPermissions = checkPermissions.filter(item => !jsonParse.includes(item));
+                }
+            }
+        } else {
+            const checkFindIndex = checkPermissions.findIndex(item => item === id);
+            if ($(this).is(":checked")) {
+                if (checkFindIndex === -1) {
+                    checkPermissions.push(id);
+                }
+            } else {
+                if (checkFindIndex !== -1) {
+                    checkPermissions.splice(checkFindIndex, 1);
+                }
+            }
+        }
+    })
+
+    body.on('click', '.btn-access', function(e){
+        e.preventDefault();
+
+        
+        showModal({
+            url: $(this).data("urlcreate"),
+            title: "Form Akses Role",
+            type: "get",
+            modalId: $(this).data("typemodal"),
+        });
+    })
 });

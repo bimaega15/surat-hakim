@@ -12,7 +12,6 @@ function getListTableMenu() {
     var url_datatable = $(".url_datatable").data("url");
     var dataTableValue = $(".data_datatable").data("table");
     if (dataTableValue != "" && dataTableValue != null) {
-        var data_datatable = JSON.parse(dataTableValue);
         data_datatable = data_datatable.split(",");
 
         if (data_datatable != null) {
@@ -52,7 +51,7 @@ function getListTableMenu() {
                     <div class="form-check">
                         <input class="form-check-input check-input-datatable" type="checkbox" value="${item.id
                     }" id="id_${item.id}" data-id="${item.id
-                    }" data-url="{{ url('master/menu/chooseMenu') }}"
+                    }" data-url="{{ url('setting/permissions/chooseMenu') }}"
                         ${check_input.includes(item.id) ? "checked" : ""}
                         >
                         <label class="form-check-label" for="id_${item.id}">
