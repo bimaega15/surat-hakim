@@ -44,15 +44,6 @@ $(document).ready(function () {
 
     var body = $("body");
     // handle btn add data
-    body.on("click", ".btn-add", function () {
-        showModal({
-            url: $(this).data("urlcreate"),
-            modalId: $(this).data("typemodal"),
-            title: "Form Surat",
-            type: "get",
-        });
-    });
-
     body.on("click", ".btn-delete", function (e) {
         e.preventDefault();
         basicDeleteConfirmDatatable({
@@ -61,14 +52,5 @@ $(document).ready(function () {
             text: "Apakah anda yakin ingin menghapus item ini?",
         });
     });
-
-    body.on("click", ".btn-edit", function (e) {
-        e.preventDefault();
-        showModal({
-            url: $(this).data("urlcreate"),
-            modalId: $(this).data("typemodal"),
-            title: "Form Surat",
-            type: "get",
-        });
-    });
 });
+

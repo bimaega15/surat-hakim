@@ -17,7 +17,7 @@
                     </div>
                     <div>
                         <x-button-main title="Tambah" className="btn-add" typeModal="mediumModal"
-                            urlCreate="{{ url('surat/petunjukAkhir/create') }}" />
+                            urlCreate="{{ url('surat/petunjukAkhir/create?formSuratId=' . $formSuratId) }}" />
                     </div>
                 </div>
             </h5>

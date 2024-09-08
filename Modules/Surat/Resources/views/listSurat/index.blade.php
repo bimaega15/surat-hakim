@@ -16,8 +16,9 @@
                         Data List Surat
                     </div>
                     <div>
-                        <x-button-main title="Tambah" className="btn-add" typeModal="mediumModal"
-                            urlCreate="{{ url('surat/listSurat/create') }}" />
+                        <a href="{{ url('surat/listSurat/create') }}" class="btn btn-primary">
+                            <i class="bx bx-plus me-sm-1"></i> Tambah Surat
+                        </a>
                     </div>
                 </div>
             </h5>
@@ -37,6 +38,7 @@
                         </tbody>
                     </table>
                 </div>
+
             </div>
         </div>
         <!--/ Basic Bootstrap Table -->

@@ -3,12 +3,17 @@
 namespace Modules\Surat\Http\Controllers;
 
 use App\Http\Helpers\UtilsHelper;
+use App\Http\Resources\FormatResponse;
 use App\Models\FormSurat;
 use Illuminate\Contracts\Support\Renderable;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Modules\Surat\Http\Requests\FormListSuratRequest;
 use DataTables;
+use Illuminate\Support\Facades\App;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+
 
 class ListSuratController extends Controller
 {
@@ -43,10 +48,8 @@ class ListSuratController extends Controller
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
                             <li><a 
-                            class="dropdown-item btn-edit" 
-                            href="#" 
-                            data-typemodal="mediumModal"
-                            data-urlcreate="' . url('surat/listSurat/' . $row->id . '/edit') . '">Edit</a></li>
+                            class="dropdown-item" 
+                            href="' . url('surat/listSurat/' . $row->id . '/edit') . '">Edit</a></li>
 
                             <li><a class="dropdown-item btn-delete" href="#" 
                             data-url="' . url('surat/listSurat/' . $row->id) . '?_method=delete">Delete</a></li>
@@ -54,6 +57,8 @@ class ListSuratController extends Controller
                             <li><a class="dropdown-item" href="' . url('surat/petunjukAwal?formSuratId=' . $row->id) . '" target="_blank">Petunjuk Awal</a></li>
 
                             <li><a class="dropdown-item" href="' . url('surat/petunjukAkhir?formSuratId=' . $row->id) . '" target="_blank">Petunjuk Akhir</a></li>
+
+                            <li><a class="dropdown-item" href="' . url('surat/listSurat/' . $row->id . '/previewPdf') . '" target="_blank">Preview Pdf</a></li>
                         </ul>
                     </div>
                     ';
@@ -100,7 +105,26 @@ class ListSuratController extends Controller
      */
     public function show($id)
     {
-        return view('surat::show');
+        try {
+            $row = FormSurat::find($id);
+            $response = [
+                'status' => 200,
+                'message' => 'Berhasil ambil data',
+                'result' => $row,
+            ];
+            return (new FormatResponse($response))
+                ->response()
+                ->setStatusCode($response['status']);
+        } catch (\Throwable $th) {
+            $response = [
+                'status' => 500,
+                'message' => 'Gagal ambil data',
+                'result' => $th->getMessage(),
+            ];
+            return (new FormatResponse($response))
+                ->response()
+                ->setStatusCode($response['status']);
+        }
     }
 
     /**
@@ -145,5 +169,17 @@ class ListSuratController extends Controller
         UtilsHelper::deleteFile($id, 'form_surat', 'surat', 'icon_fsurat');
         FormSurat::destroy($id);
         return response()->json('Berhasil hapus data', 200);
+    }
+
+    public function previewPdf($id)
+    {
+        $formSurat = FormSurat::find($id);
+
+        $pdf = App::make('dompdf.wrapper');
+        $pdf = Pdf::loadView('pdf.view', [
+            'data' => $formSurat,
+        ]);
+        $pdf->setPaper('A4', 'portrait');
+        return $pdf->stream();
     }
 }

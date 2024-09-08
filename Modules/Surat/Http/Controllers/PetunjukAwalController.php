@@ -35,18 +35,18 @@ class PetunjukAwalController extends Controller
 
                     return $output;
                 })
-                ->addColumn('action', function ($row) {
+                ->addColumn('action', function ($row) use ($formSuratId) {
                     $buttonUpdate = '
                     <a class="btn btn-warning btn-edit btn-sm" 
                     data-typemodal="mediumModal"
-                    data-urlcreate="' . url('surat/informasiSebelum/' . $row->id . '/edit') . '"
+                    data-urlcreate="' . url('surat/petunjukAwal/' . $row->id . '/edit?formSuratId=' . $formSuratId) . '"
                     data-modalId="mediumModal"
                     >
                         <i class="fa-solid fa-pencil"></i>
                     </a>
                     ';
                     $buttonDelete = '
-                    <button type="button" class="btn-delete btn btn-danger btn-sm" data-url="' . url('surat/informasiSebelum/' . $row->id) . '?_method=delete">
+                    <button type="button" class="btn-delete btn btn-danger btn-sm" data-url="' . url('surat/petunjukAwal/' . $row->id) . '?_method=delete">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                     ';
@@ -63,7 +63,7 @@ class PetunjukAwalController extends Controller
                 ->toJson();
         }
         return view('surat::informasiSebelum.index', [
-            'formSuratId' => $request->formSuratId
+            'formSuratId' => $request->formSuratId,
         ]);
     }
 
@@ -87,8 +87,11 @@ class PetunjukAwalController extends Controller
     {
         $uploadFile = $request->file('gambar_isebelum');
         $fileName = UtilsHelper::uploadFile($uploadFile, 'informasiSebelum', null, 'informasi_sebelum', 'gambar_isebelum');
-        $data = $request->all();
-        $mergeData = array_merge($data, ['gambar_isebelum' => $fileName]);
+        $data = $request->post();
+        $mergeData = array_merge($data, [
+            'gambar_isebelum' => $fileName,
+            'form_surat_id' => $request->input('formSuratId')
+        ]);
         InformasiSebelum::create($mergeData);
         return response()->json('Berhasil tambah data', 201);
     }
@@ -111,7 +114,7 @@ class PetunjukAwalController extends Controller
     public function edit(Request $request, $id)
     {
         $formSuratId = $request->formSuratId;
-        $action = url('surat/petunjukAwal/' . $id . '?_method=put');
+        $action = url('surat/petunjukAwal/' . $id . '?_method=put&formSuratId=' . $formSuratId);
         $row = InformasiSebelum::find($id);
         return view('surat::informasiSebelum.form', compact('action', 'row'));
     }
@@ -128,9 +131,10 @@ class PetunjukAwalController extends Controller
         $uploadFile = $request->file('gambar_isebelum');
         $fileName = UtilsHelper::uploadFile($uploadFile, 'informasiSebelum', $id, 'informasi_sebelum', 'gambar_isebelum');
 
-        $dataRequest = $request->except(['_method', '_token']);
+        $formSuratId = $request->formSuratId;
+        $dataRequest = $request->except(['_method', '_token', 'formSuratId']);
         $data = $dataRequest;
-        $mergeData = array_merge($data, ['gambar_isebelum' => $fileName]);
+        $mergeData = array_merge($data, ['gambar_isebelum' => $fileName, 'form_surat_id' => $formSuratId]);
 
         InformasiSebelum::find($id)->update($mergeData);
         return response()->json('Berhasil update data', 200);

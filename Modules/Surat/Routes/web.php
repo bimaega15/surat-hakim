@@ -14,6 +14,7 @@
 Route::prefix('surat')->group(function () {
     Route::get('/', 'SuratController@index');
     Route::resource('/listSurat', 'ListSuratController');
+    Route::get('/listSurat/{id}/previewPdf', 'ListSuratController@previewPdf');
     Route::resource('/petunjukAwal', 'PetunjukAwalController');
     Route::resource('/petunjukAkhir', 'PetunjukAkhirController');
 });

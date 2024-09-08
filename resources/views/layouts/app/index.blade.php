@@ -1,6 +1,7 @@
 @php
     $settingApp = UtilsHelp::settingApp();
 @endphp
+
 <!DOCTYPE html>
 
 <html lang="en" class="light-style layout-menu-fixed layout-compact" dir="ltr" data-theme="theme-default"
@@ -57,13 +58,11 @@
     <link rel="stylesheet"
         href="{{ asset('library/bootstrap-datepicker-master/dist/css/bootstrap-datepicker.min.css') }}">
     <link href="{{ asset('library/nestable/jquery-nestable.css') }}" rel="stylesheet" />
-
     @stack('custom_css')
 
     <!-- Helpers -->
     <script src="{{ asset('backend/sneat-bootstrap-html-admin-template-free') }}/assets/vendor/js/helpers.js"></script>
     <script src="{{ asset('backend/sneat-bootstrap-html-admin-template-free') }}/assets/js/config.js"></script>
-
 </head>
 
 <body>
@@ -155,6 +154,8 @@
             }
         });
     </script>
+    <script src="{{ asset('library/ckeditor/ckeditor.js') }}"></script>
+
     <script class="baseurl" data-value="{{ url('/') }}"></script>
     @stack('custom_js')
 </body>
