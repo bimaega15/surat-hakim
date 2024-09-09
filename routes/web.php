@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\MyProfileController;
 use App\Http\Controllers\SelectSearchController;
 use Illuminate\Support\Facades\Route;
@@ -16,8 +17,9 @@ use Modules\Auth\Http\Controllers\AuthController;
 |
 */
 
+Route::get('/', [HomeController::class, 'index'])->name('home.index');
 Route::group(['middleware' => ['guest']], function () {
-    Route::get('/', [AuthController::class, 'index']);
+    Route::get('/login', [AuthController::class, 'index']);
     Route::get('/login', [AuthController::class, 'index'])->name('login');
     Route::post('/auth/login', [AuthController::class, 'store'])->name('auth.login');
 });
