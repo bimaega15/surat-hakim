@@ -1,5 +1,5 @@
-@props(['label', 'name', 'labelInput', 'checked' => ''])
-<div class="form-group mb-3">
+@props(['label', 'name', 'labelInput', 'checked' => '', 'col' => 'col-lg-12'])
+<div class="form-group mb-3 {{ $col }}">
     <label for="">
         {{ $label }}
     </label>

@@ -1,36 +1,103 @@
-<form action="{{ $action }}" method="post" id="form-submit">
-    <div class="mb-4">
-        <x-form-input-vertical label="Nama Aplikasi" name="namaaplikasi_pengaturan" placeholder="Nama Aplikasi..."
-            value="{{ isset($row) ? $row->namaaplikasi_pengaturan ?? '' : '' }}" />
-        <x-form-input-vertical label="Nama Instansi" name="namainstansi_pengaturan" placeholder="Nama Instansi..."
-            value="{{ isset($row) ? $row->namainstansi_pengaturan ?? '' : '' }}" />
-        <x-form-textarea-vertical label="Alamat" name="alamat_pengaturan" placeholder="Alamat..."
-            value="{{ isset($row) ? $row->alamat_pengaturan ?? '' : '' }}" />
-        <x-form-input-vertical type="number" label="No. Telepon" name="notelepon_pengaturan"
-            placeholder="No. Telepon..." value="{{ isset($row) ? $row->notelepon_pengaturan ?? '' : '' }}" />
-        <x-form-textarea-vertical label="Deskripsi" name="deskripsi_pengaturan" placeholder="Deskripsi..."
-            value="{{ isset($row) ? $row->deskripsi_pengaturan ?? '' : '' }}" />
-        @php
-            $logoAplikasi = isset($row) ? $row->logoaplikasi_pengaturan ?? '' : '';
-        @endphp
-        <x-form-input-vertical type="file" label="Logo Aplikasi" name="logoaplikasi_pengaturan" />
-        @php
-            if ($logoAplikasi != '') {
-                echo '
+@php
+    $structurForm = [
+        [
+            'type' => 'text',
+            'label' => 'Nama Aplikasi',
+            'placeholder' => 'Nama Aplikasi...',
+            'name' => 'namaaplikasi_pengaturan',
+            'value' => isset($row) ? $row->namaaplikasi_pengaturan ?? '' : '',
+        ],
+
+        [
+            'type' => 'text',
+            'label' => 'Nama Instansi',
+            'placeholder' => 'Nama Instansi...',
+            'name' => 'namainstansi_pengaturan',
+            'value' => isset($row) ? $row->namainstansi_pengaturan ?? '' : '',
+        ],
+
+        [
+            'type' => 'textarea',
+            'label' => 'Alamat',
+            'name' => 'alamat_pengaturan',
+            'placeholder' => 'Alamat...',
+            'value' => isset($row) ? $row->alamat_pengaturan ?? '' : '',
+        ],
+
+        [
+            'type' => 'text',
+            'label' => 'Email',
+            'placeholder' => 'Email...',
+            'name' => 'email_pengaturan',
+            'value' => isset($row) ? $row->email_pengaturan ?? '' : '',
+        ],
+
+        [
+            'type' => 'text',
+            'label' => 'No. Telepon',
+            'placeholder' => 'No. Telepon...',
+            'name' => 'notelepon_pengaturan',
+            'value' => isset($row) ? $row->notelepon_pengaturan ?? '' : '',
+        ],
+
+        [
+            'type' => 'textarea',
+            'label' => 'Deskripsi',
+            'name' => 'deskripsi_pengaturan',
+            'placeholder' => 'Deskripsi...',
+            'value' => isset($row) ? $row->deskripsi_pengaturan ?? '' : '',
+        ],
+
+        [
+            'type' => 'file',
+            'label' => 'Icon',
+            'name' => 'logoaplikasi_pengaturan',
+            'render' => isset($row)
+                ? '
                 <a href="' .
-                    url('upload/setting/' . $logoAplikasi) .
-                    '" target="_blank">  
-                        <img src="' .
-                    asset('upload/setting/' . $logoAplikasi) .
-                    '" alt="Logo Aplikasi" style="width: 150px;"/>
-                </a>';
-            }
-        @endphp
+                        asset('upload/setting/' . $row->logoaplikasi_pengaturan) .
+                        '">
+                    <img src="' .
+                        asset('upload/setting/' . $row->logoaplikasi_pengaturan) .
+                        '" alt="' .
+                        $row->logoaplikasi_pengaturan .
+                        '" class="img-thumbnail" style="width: 150px;">
+                </a>' ??
+                    ''
+                : '',
+        ],
+        [
+            'type' => 'file',
+            'label' => 'Video Website',
+            'name' => 'video_pengaturan',
+            'render' =>
+                isset($row) && !empty($row->video_pengaturan)
+                    ? '
+            <a href="' .
+                        asset('upload/settingVideo/' . $row->video_pengaturan) .
+                        '" target="_blank">
+                <video width="250" controls>
+                    <source src="' .
+                        asset('upload/settingVideo/' . $row->video_pengaturan) .
+                        '" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </a>'
+                    : '',
+        ],
+    ];
+@endphp
+
+<form id="form-submit" action="{{ $action }}">
+    <div class="modal-body">
+        <x-form-template :structurForm="$structurForm" />
     </div>
-    <div class="row">
-        <div class="col-sm-12 d-flex justify-content-end">
-            <x-button-cancel-modal />
-            <x-button-submit-modal />
+    <div class="modal-footer">
+        <div class="d-flex justify-content-end">
+            <div>
+                <x-button-cancel-modal />
+                <x-button-submit-modal />
+            </div>
         </div>
     </div>
 </form>

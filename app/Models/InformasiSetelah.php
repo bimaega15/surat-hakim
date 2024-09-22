@@ -11,4 +11,9 @@ class InformasiSetelah extends Model
     protected $table = 'informasi_setelah';
     protected $guarded = [];
     public $timestamps = true;
+
+    public function formSurat()
+    {
+        return $this->belongsTo(FormSurat::class);
+    }
 }

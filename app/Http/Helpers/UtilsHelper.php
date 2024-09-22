@@ -209,6 +209,14 @@ class UtilsHelper
         return $formattedDate;
     }
 
+    public static function formatDateBirthdate($tanggal_transaction)
+    {
+        $dateNow = $tanggal_transaction;
+        $tanggal = Carbon::parse($dateNow);
+        $formattedDate = $tanggal->format('d-m-Y');
+        return $formattedDate;
+    }
+
     public static function formatHumansDate($tanggal_transaction)
     {
         $dateNow = $tanggal_transaction;

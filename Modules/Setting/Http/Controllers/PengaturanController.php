@@ -46,18 +46,20 @@ class PengaturanController extends Controller
     public function store(CreatePengaturanRequest $request)
     {
         //
-        $fileLogoAplikasi = $request->file('logoaplikasi_pengaturan');
-        $logoaplikasi_pengaturan = UtilsHelper::uploadFile($fileLogoAplikasi, 'setting', null, 'pengaturan', 'logoaplikasi_pengaturan');
-        $data = [
-            'namaaplikasi_pengaturan' => $request->input('namaaplikasi_pengaturan'),
-            'namainstansi_pengaturan' => $request->input('namainstansi_pengaturan'),
-            'alamat_pengaturan' => $request->input('alamat_pengaturan'),
-            'notelepon_pengaturan' => $request->input('notelepon_pengaturan'),
-            'deskripsi_pengaturan' => $request->input('deskripsi_pengaturan'),
-            'logoaplikasi_pengaturan' => $logoaplikasi_pengaturan,
-        ];
-        Pengaturan::create($data);
-        return response()->json('Berhasil melakukan pengaturan', 201);
+        $uploadFile = $request->file('logoaplikasi_pengaturan');
+        $fileName = UtilsHelper::uploadFile($uploadFile, 'setting', null, 'pengaturan', 'logoaplikasi_pengaturan');
+
+        
+        $uploadFile = $request->file('video_pengaturan');
+        $fileNameVideo = UtilsHelper::uploadFile($uploadFile, 'settingVideo', null, 'pengaturan', 'video_pengaturan');
+
+        $data = $request->all();
+        $mergeData = array_merge($data, [
+            'logoaplikasi_pengaturan' => $fileName,
+            'video_pengaturan' => $fileNameVideo,
+        ]);
+        Pengaturan::create($mergeData);
+        return response()->json('Berhasil tambah data', 201);
     }
 
     /**
@@ -91,18 +93,21 @@ class PengaturanController extends Controller
     public function update(CreatepengaturanRequest $request, $id)
     {
         //
-        $fileLogoAplikasi = $request->file('logoaplikasi_pengaturan');
-        $logoaplikasi_pengaturan = UtilsHelper::uploadFile($fileLogoAplikasi, 'setting', $id, 'pengaturan', 'logoaplikasi_pengaturan');
-        $data = [
-            'namaaplikasi_pengaturan' => $request->input('namaaplikasi_pengaturan'),
-            'namainstansi_pengaturan' => $request->input('namainstansi_pengaturan'),
-            'alamat_pengaturan' => $request->input('alamat_pengaturan'),
-            'notelepon_pengaturan' => $request->input('notelepon_pengaturan'),
-            'deskripsi_pengaturan' => $request->input('deskripsi_pengaturan'),
-            'logoaplikasi_pengaturan' => $logoaplikasi_pengaturan,
-        ];
-        Pengaturan::find($id)->update($data);
-        return response()->json('Berhasil melakukan pengaturan', 200);
+        $uploadFile = $request->file('logoaplikasi_pengaturan');
+        $fileName = UtilsHelper::uploadFile($uploadFile, 'setting', $id, 'pengaturan', 'logoaplikasi_pengaturan');
+
+        $uploadFile = $request->file('video_pengaturan');
+        $fileNameVideo = UtilsHelper::uploadFile($uploadFile, 'settingVideo', $id, 'pengaturan', 'video_pengaturan');
+
+        $dataRequest = $request->except(['_method', '_token']);
+        $data = $dataRequest;
+        $dataMerge = array_merge($data, [
+            'logoaplikasi_pengaturan' => $fileName,
+            'video_pengaturan' => $fileNameVideo,
+        ]);
+
+        Pengaturan::find($id)->update($dataMerge);
+        return response()->json('Berhasil update data', 200);
     }
 
     /**

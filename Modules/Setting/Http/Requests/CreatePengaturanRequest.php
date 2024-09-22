@@ -17,6 +17,8 @@ class CreatePengaturanRequest extends FormRequest
             'namaaplikasi_pengaturan' => 'required',
             'namainstansi_pengaturan' => 'required',
             'notelepon_pengaturan' => 'required',
+            'email_pengaturan' => 'email',
+            'video_pengaturan' => 'mimes:mp4,mov,ogg,qt|max:20000',
         ];
     }
 
@@ -26,6 +28,9 @@ class CreatePengaturanRequest extends FormRequest
             'namaaplikasi_pengaturan.required' => 'Nama Aplikasi wajib diisi',
             'namainstansi_pengaturan.required' => 'Nama Usaha wajib diisi',
             'notelepon_pengaturan.required' => 'No. Telepon wajib diisi',
+            'email_pengaturan.email' => 'Email tidak valid',
+            'video_pengaturan.mimes' => 'Format video harus berupa mp4, mov, ogg, atau qt',
+            'video_pengaturan.max' => 'Ukuran video tidak boleh lebih dari 20MB',
         ];
     }
 

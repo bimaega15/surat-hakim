@@ -14,38 +14,68 @@ return [
         'L' => 'Laki-laki',
         'P' => 'Perempuan'
     ],
-    'status_barang' => [
-        'dijual' => 'Dijual',
-        'tidak dijual' => 'Tidak Dijual'
+    'agama' => [
+        'Islam' => 'Islam',
+        'Kristen' => 'Kristen',
+        'Katolik' => 'Katolik',
+        'Hindu' => 'Hindu',
+        'Buddha' => 'Buddha',
+        'Khonghucu' => 'Khonghucu',
+        'Lain-lain' => 'Lain-lain'
     ],
-    'status_serial' => [
-        'sn' => 'Serial Number',
-        'non sn' => 'Non Serial Number',
+    'pemohon' => [
+        'Pemohon (untuk pemohon sendiri)' => 'Pemohon (untuk pemohon sendiri)',
+        'Anak Pemohon' => 'Anak Pemohon',
+        'Orangtua Pemohon' => 'Orangtua Pemohon',
     ],
-    'status_serial_barang' => [
-        'ready' => 'Ready',
-        'return' => 'Return',
-        'cancel transaction' => 'Cancel Transaction',
-        'not sold' => 'Not Sold'
+    'akta' => [
+        'Akta Kelahiran' => 'Akta Kelahiran',
+        'Akta Kematian' => 'Akta Kematian',
+        'Akta Perkawinan' => 'Akta Perkawinan',
+        'Akta Perceraian' => 'Akta Perceraian',
+        'Akta Pengakuan Anak' => 'Akta Pengakuan Anak',
     ],
-    'tipe_print' => [
-        'thermal' => 'Thermal',
-        'biasa' => 'Biasa',
+    'data_salah' => [
+        'Lahir pada tanggal (untuk kesalahan tanggal, bulan dan tahun lahir)' => 'Lahir pada tanggal (untuk kesalahan tanggal, bulan dan tahun lahir)',
+        'lahir di (untuk kesalahan tempat lahir)' => 'lahir di (untuk kesalahan tempat lahir)',
+        'bernama (untuk kesalahan penulisan nama)' => 'bernama (untuk kesalahan penulisan nama)',
     ],
-    'tipe_diskon' => [
-        'fix' => 'Fix',
-        '%' => '%',
+    'data_pembanding_terbanding' => [
+        'Pembanding' => 'Pembanding',
+        'Terbanding' => 'Terbanding',
+        'Hanya sampai tingkat pertama' => 'Hanya sampai tingkat pertama',
     ],
-    'tipe_pembayaran' => [
-        'cash' => 'Cash',
-        'transfer' => 'Transfer',
-        // 'deposit' => 'Deposit',
+    'data_pemohon_kasasi' => [
+        'Pemohon Kasasi' => 'Pemohon Kasasi',
+        'Termohon Kasasi' => 'Termohon Kasasi',
+        'Hanya sampai tingkat banding' => 'Hanya sampai tingkat banding',
     ],
-    'pesanwa_hutang' => 'Transaksi anda sudah melebihi batas waktu pembayaran. Silahkan segera melakukan pembayaran.',
-    'pesanwa_hutangsupplier' => 'Transaksi saya yang sebelumnya belum lunas, akan segera kami lunasi sebelum jatuh tempo.',
-    'status_tstock' => [
-        'proses kirim' => 'Proses Kirim',
-        'diterima' => 'Diterima',
-        'ditolak' => 'Ditolak',
+    'jenis_benda_tidak_gerak' => [
+        'Tanah Kebun Sawit' => 'Tanah Kebun Sawit',
+        'Tanah berikut bangunan rumah' => 'Tanah berikut bangunan rumah',
+        'Rumah' => 'Rumah',
+        'Toko' => 'Toko',
+        'Lain-lain' => 'Lain-lain',
+    ],
+    'dokumen_benda_tidak_gerak' => [
+        'Sertifikat hak milik' => 'Sertifikat hak milik',
+        'SKGR' => 'SKGR',
+        'Surat keterangan tanah' => 'Surat keterangan tanah',
+        'Lain-lain' => 'Lain-lain',
+    ],
+    'jenis_benda_gerak' => [
+        'Mobil' => 'Mobil',
+        'Motor' => 'Motor',
+        'Perhiasan' => 'Perhiasan',
+        'Lain-lain' => 'Lain-lain',
+    ],
+    'dokumen_benda_gerak' => [
+        'STNK' => 'STNK',
+        'BPKB' => 'BPKB',
+        'Lain-lain' => 'Lain-lain',
+    ],
+    'pernyataan_objek' => [
+        'Sudah' => 'Sudah',
+        'Belum' => 'Belum',
     ],
 ];

@@ -3,6 +3,7 @@
 namespace Modules\Surat\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class FormListSuratRequest extends FormRequest
 {
@@ -13,16 +14,36 @@ class FormListSuratRequest extends FormRequest
      */
     public function rules()
     {
-        return [
-            'judul_fsurat' => 'required',
-        ];
+        $listSurat = $this->route('listSurat');
+        if ($listSurat) {
+            return [
+                'judul_fsurat' => [
+                    'required',
+                    Rule::unique('form_surat', 'judul_fsurat')->ignore($listSurat),
+                ],
+            ];
+        } else {
+            return [
+                'judul_fsurat' => [
+                    'required',
+                ],
+            ];
+        }
     }
 
     public function messages()
     {
-        return [
-            'judul_fsurat.required' => 'Judul surat wajib diisi',
-        ];
+        $listSurat = $this->route('listSurat');
+        if ($listSurat) {
+            return [
+                'judul_fsurat.required' => 'Judul surat wajib diisi',
+                'judul_fsurat.unique' => 'Judul surat harus unik',
+            ];
+        } else {
+            return [
+                'judul_fsurat.required' => 'Judul surat wajib diisi',
+            ];
+        }
     }
 
     /**
