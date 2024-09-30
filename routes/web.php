@@ -19,7 +19,8 @@ use Modules\Auth\Http\Controllers\AuthController;
 */
 
 Route::get('/', [HomeController::class, 'index'])->name('home.index');
-Route::resource('/permohonanSurat', PermohonanSuratController::class);
+Route::resource('/permohonanSurat', PermohonanSuratController::class)->except(['show']);
+Route::get('/permohonanSurat/createDocument', [PermohonanSuratController::class, 'createDocument'])->name('permohonanSurat.createDocument');
 Route::resource('/hasilPermohonan', HasilPermohonanController::class)->except(['show']);
 Route::get('/hasilPermohonan/cetakPdf', [HasilPermohonanController::class, 'cetakPdf'])->name('hasilPermohonan.cetakPdf');
 

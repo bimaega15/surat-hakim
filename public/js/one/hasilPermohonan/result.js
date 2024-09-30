@@ -1,5 +1,6 @@
 var urlRoot = $('.url_root').data('value');
 var slug = $('.slug').data('value');
+var dataTable;
 
 function initDatatable() {
     $.ajax({
@@ -8,20 +9,22 @@ function initDatatable() {
         dataType: "json",
         success: function (result) {
             const { data } = result;
-            $('#dataTable').DataTable().destroy();
-
             datatable = $('#dataTable').DataTable({
                 data: data,
                 columns: [
                     {
                         data: null, render: function (data, type, row, meta) {
                             return meta.row + 1;
-                        }, width: '5%'
+                        },
+                        className: 'text-center',
                     },
-                    { data: 'nik', width: '15%' },
-                    { data: 'nama', width: '30%' },
-                    { data: 'jenis_surat', width: '20%' },
-                    { data: 'action', width: '30%' }
+                    { data: 'nik', className: 'text-center' },
+                    { data: 'nama' },
+                    { data: 'jenis_surat' },
+                    {
+                        data: 'action',
+                        className: 'text-center'
+                    },
                 ],
                 autoWidth: true,
                 responsive: true,

@@ -588,3 +588,13 @@ const formatDatePayload = () => {
 const removeZeroAtFront = (nominal) => {
     return nominal === '' ? 0 : parseInt(nominal, 10);
 }
+
+const formatDateToDbSave = () => {
+    // please make date like this yyyy-mm-dd
+    const date = new Date();
+    const localDate = new Date(
+        date.getTime() - date.getTimezoneOffset() * 60000
+    );
+    const formattedDate = localDate.toISOString().split("T")[0];
+    return formattedDate;
+}

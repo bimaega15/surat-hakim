@@ -7,13 +7,13 @@
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
-                        <table class="table">
+                        <table class="table" id="dataTable">
                             <thead>
                                 <tr>
                                     <th>No.</th>
-                                    <th>Icon</th>
-                                    <th>Judul Surat</th>
-                                    <th>Deskripsi</th>
+                                    <th>NIK</th>
+                                    <th>Nama Warga</th>
+                                    <th>Surat</th>
                                     <th>Aksi</th>
                                 </tr>
                             </thead>

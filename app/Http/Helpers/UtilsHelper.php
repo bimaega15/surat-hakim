@@ -4,9 +4,7 @@ namespace App\Http\Helpers;
 
 use App\Models\Menu;
 use App\Models\MenuPermissions;
-use App\Models\Pembelian;
 use App\Models\Pengaturan;
-use App\Models\Penjualan;
 use App\Models\User;
 use Carbon\Carbon;
 use DateTime;
@@ -324,130 +322,6 @@ class UtilsHelper
         return number_format($nominal, 0, '.', ',');
     }
 
-    public static function paymentStatisPenjualan($id)
-    {
-        $penjualan = new Penjualan();
-        $getPenjualan = $penjualan->invoicePenjualan($id);
-
-        $hutang = 0;
-        $kembalian = 0;
-        $bayar = 0;
-        $tipeTransaksi = '';
-        $statusTransaksi = false;
-        $cicilan = 0;
-
-        if (count($getPenjualan->penjualanCicilan) > 0) {
-            $statusTransaksi = $getPenjualan->tipe_penjualan;
-
-            $getPenjualanCicilan = $getPenjualan->penjualanCicilan;
-            $countPenjualanCicilan = count($getPenjualanCicilan);
-
-            $getPenjualanCicilan = $getPenjualanCicilan[0];
-            $getBayarCicilan = $getPenjualan->penjualanCicilan->pluck('bayar_pcicilan')->toArray();
-            $totalBayar = array_sum($getBayarCicilan);
-
-            $hutang = $getPenjualanCicilan->bayar_pcicilan + $getPenjualanCicilan->hutang_pcicilan;
-            if ($statusTransaksi == 'cash' && $countPenjualanCicilan > 1) {
-                $hutang = $getPenjualanCicilan->bayar_pcicilan + $getPenjualanCicilan->hutang_pcicilan - $getPenjualan->kembalian_pcicilan;
-            } else if ($statusTransaksi == 'cash' && $countPenjualanCicilan == 1) {
-                $hutang = $getPenjualanCicilan->bayar_pcicilan - $getPenjualanCicilan->kembalian_pcicilan;
-            }
-            $kembalian = $getPenjualan->kembalian_penjualan;
-            $bayar = $totalBayar;
-            if ($statusTransaksi == 'cash') {
-                $bayar = $totalBayar - $getPenjualan->kembalian_pcicilan;
-            }
-            $tipeTransaksi = 'hutang';
-        } else {
-            $hutang = $getPenjualan->hutang_penjualan;
-            $kembalian = $getPenjualan->kembalian_penjualan;
-            $bayar = $getPenjualan->tipe_penjualan == 'hutang' ? 0 : $getPenjualan->bayar_penjualan;
-            $tipeTransaksi = $getPenjualan->tipe_penjualan;
-        }
-
-        $calc = $bayar - $hutang;
-        if ($calc < 0) {
-            $statusTransaksi = false;
-            $cicilan = abs($calc);
-        } else {
-            $statusTransaksi = true;
-            $cicilan = 0;
-        }
-
-        return [
-            'hutang' => $hutang,
-            'kembalian' => $kembalian,
-            'bayar' => $bayar,
-            'tipe_transaksi' => $tipeTransaksi,
-            'status_transaksi' => $statusTransaksi,
-            'cicilan' => $cicilan,
-            'id' => $id,
-        ];
-    }
-
-    public static function paymentStatisPembelian($id)
-    {
-        $pembelian = new Pembelian();
-        $getPembelian = $pembelian->invoicePembelian($id);
-
-        $hutang = 0;
-        $kembalian = 0;
-        $bayar = 0;
-        $tipeTransaksi = '';
-        $statusTransaksi = false;
-        $cicilan = 0;
-
-        if ($getPembelian != null) {
-            if (count($getPembelian->pembelianCicilan) > 0) {
-                $statusTransaksi = $getPembelian->tipe_pembelian;
-
-                $getPembelianCicilan = $getPembelian->pembelianCicilan;
-                $countPembelianCicilan = count($getPembelianCicilan);
-
-                $getPembelianCicilan = $getPembelianCicilan[0];
-
-                $getBayarCicilan = $getPembelian->pembelianCicilan->pluck('bayar_pbcicilan')->toArray();
-                $totalBayar = array_sum($getBayarCicilan);
-
-                $hutang = $getPembelianCicilan->bayar_pbcicilan + $getPembelianCicilan->hutang_pbcicilan;
-                if ($statusTransaksi == 'cash' && $countPembelianCicilan > 1) {
-                    $hutang = $getPembelianCicilan->bayar_pcicilan + $getPembelianCicilan->hutang_pcicilan - $getPembelian->kembalian_pcicilan;
-                } else if ($statusTransaksi == 'cash' && $countPembelianCicilan == 1) {
-                    $hutang = $getPembelianCicilan->bayar_pcicilan - $getPembelianCicilan->kembalian_pcicilan;
-                }
-                $kembalian = $getPembelian->kembalian_pembelian;
-                $bayar = $totalBayar;
-                if ($statusTransaksi == 'cash') {
-                    $bayar = $totalBayar - $getPembelian->kembalian_pcicilan;
-                }
-                $tipeTransaksi = 'hutang';
-            } else {
-                $hutang = $getPembelian->hutang_pembelian;
-                $kembalian = $getPembelian->kembalian_pembelian;
-                $bayar = $getPembelian->tipe_pembelian == 'hutang' ? 0 : $getPembelian->bayar_pembelian;
-                $tipeTransaksi = $getPembelian->tipe_pembelian;
-            }
-        }
-
-        $calc = $bayar - $hutang;
-        if ($calc < 0) {
-            $statusTransaksi = false;
-            $cicilan = abs($calc);
-        } else {
-            $statusTransaksi = true;
-            $cicilan = ($calc);
-        }
-
-        return [
-            'hutang' => $hutang,
-            'kembalian' => $kembalian,
-            'bayar' => $bayar,
-            'tipe_transaksi' => $tipeTransaksi,
-            'status_transaksi' => $statusTransaksi,
-            'cicilan' => $cicilan,
-        ];
-    }
-
     public static function createdApp()
     {
         return 'Surat Menyurat Hakim';
@@ -753,5 +627,705 @@ class UtilsHelper
         }
         echo  '
             </ol>';
+    }
+
+    public static function permohonanEksekusi($params)
+    {
+        $array_jenis_kelamin = $params['array_jenis_kelamin'];
+        $array_pembanding_terbanding = $params['array_pembanding_terbanding'];
+        $array_data_pemohon_kasasi = $params['array_data_pemohon_kasasi'];
+        $array_jenis_benda = $params['array_jenis_benda'];
+        $array_dokumen_benda_tidak_gerak = $params['array_dokumen_benda_tidak_gerak'];
+        $array_dokumen_benda_gerak = $params['array_dokumen_benda_gerak'];
+        $array_jenis_benda_gerak = $params['array_jenis_benda_gerak'];
+        $array_pernyataan_objek = $params['array_pernyataan_objek'];
+
+        $row = $params['row'];
+
+        $structureBiodata = [
+            [
+                'type' => 'number',
+                'label' => 'NIK (Nomor Induk KTP) (*)',
+                'name' => 'nik',
+                'placeholder' => 'NIK (Nomor Induk KTP)...',
+                'value' => isset($row) ? $row->nik ?? '' : '',
+                'col' => 'col-lg-12',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Nama (*)',
+                'name' => 'nama',
+                'placeholder' => 'Nama...',
+                'value' => isset($row) ? $row->nama ?? '' : '',
+                'col' => 'col-lg-12',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tempat Lahir (*)',
+                'name' => 'tempat_lahir',
+                'placeholder' => 'Tempat Lahir...',
+                'value' => isset($row) ? $row->tempat_lahir ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Lahir (*)',
+                'name' => 'tanggal_lahir',
+                'placeholder' => 'Tanggal Lahir...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_lahir) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis Kelamin (*)',
+                'name' => 'jenis_kelamin',
+                'value' => isset($row) ? $row->jenis_kelamin ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_jenis_kelamin,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Pekerjaan (*)',
+                'name' => 'pekerjaan',
+                'placeholder' => 'Pekerjaan...',
+                'value' => isset($row) ? $row->pekerjaan ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'textarea',
+                'label' => 'Alamat (*)',
+                'name' => 'alamat',
+                'placeholder' => 'alamat...',
+                'value' => isset($row) ? $row->alamat ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+        ];
+
+        $structureDataPemohon = [
+            [
+                'type' => 'select',
+                'label' => 'Dahulu sebagai (Pembanding) (*)',
+                'name' => 'pembanding_terbanding',
+                'value' => isset($row) ? $row->pembanding_terbanding ?? '' : '',
+                'col' => 'col-lg-12',
+                'array_data' => $array_pembanding_terbanding,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'No. Putusan Pengadilan Negeri (*)',
+                'name' => 'nomor_putusan',
+                'placeholder' => 'Nomor Putusan...',
+                'value' => isset($row) ? $row->nomor_putusan ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Putusan Pengadilan Negeri (*)',
+                'name' => 'tanggal_putusan',
+                'placeholder' => 'Tanggal Putusan Pengadilan Negeri...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_putusan) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker'
+            ],
+
+            [
+                'type' => 'select',
+                'label' => 'Dahulu sebagai (Kasasi) (*)',
+                'name' => 'pemohon_termohon_kasasi',
+                'value' => isset($row) ? $row->pemohon_termohon_kasasi ?? '' : '',
+                'col' => 'col-lg-12',
+                'array_data' => $array_data_pemohon_kasasi,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'No. Putusan Pengadilan Negeri (*)',
+                'name' => 'nomor_putusan_banding',
+                'placeholder' => 'Nomor Putusan Pengadilan Negeri...',
+                'value' => isset($row) ? $row->nomor_putusan_banding ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Putusan Banding (*)',
+                'name' => 'tanggal_putusan_banding',
+                'placeholder' => 'Tanggal Putusan Banding...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_putusan_banding) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker'
+            ],
+
+            [
+                'type' => 'text',
+                'label' => 'No. Putusan Mahkamah Agung',
+                'name' => 'nomor_putusan_ma',
+                'placeholder' => 'Nomor Putusan Mahkamah Agung...',
+                'value' => isset($row) ? $row->nomor_putusan_ma ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Putusan Mahkamah Agung',
+                'name' => 'tanggal_putusan_ma',
+                'placeholder' => 'Tanggal Putusan Mahkamah Agung...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_putusan_ma) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker'
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis benda (tidak bergerak)',
+                'name' => 'jenis_benda',
+                'value' => isset($row) ? $row->jenis_benda ?? '' : '',
+                'col' => 'col-lg-12',
+                'array_data' => $array_jenis_benda,
+                'expand_input' => 'jenis_benda_input',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Alamat letak objek',
+                'name' => 'wilayah_benda',
+                'placeholder' => 'Alamat letak objek...',
+                'value' => isset($row) ? $row->wilayah_benda ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Dokumen benda',
+                'name' => 'dokumen_benda',
+                'value' => isset($row) ? $row->dokumen_benda ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_dokumen_benda_tidak_gerak,
+                'expand_input' => 'dokumen_benda_input',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis benda (bergerak)',
+                'name' => 'jenis_benda_gerak',
+                'value' => isset($row) ? $row->jenis_benda_gerak ?? '' : '',
+                'col' => 'col-lg-12',
+                'array_data' => $array_jenis_benda_gerak,
+                'expand_input' => 'jenis_benda_gerak_input',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Alamat letak objek',
+                'name' => 'wilayah_benda_gerak',
+                'placeholder' => 'Alamat letak objek...',
+                'value' => isset($row) ? $row->wilayah_benda_gerak ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Dokumen benda',
+                'name' => 'dokumen_benda_gerak',
+                'value' => isset($row) ? $row->dokumen_benda_gerak ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_dokumen_benda_gerak,
+                'expand_input' => 'dokumen_benda_gerak_input',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Apakah sudah melakukan sita eksekusi atau sita jaminan ?',
+                'name' => 'pernyataan_objek',
+                'value' => isset($row) ? $row->pernyataan_objek ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_pernyataan_objek,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal dilakukan aanmaning',
+                'name' => 'tanggal_aanmaning',
+                'placeholder' => 'Tanggal dilakukan aanmaning...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_aanmaning) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+        ];
+
+        $structurePenutup = [
+            [
+                'type' => 'text',
+                'label' => 'Tempat pemohon (*)',
+                'name' => 'tempat_pemohon',
+                'placeholder' => 'Tempat pemohon...',
+                'value' => isset($row) ? $row->tempat_pemohon ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal pemohon (*)',
+                'name' => 'tanggal_pemohon',
+                'placeholder' => 'Tanggal pemohon...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_pemohon) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+        ];
+
+        return [
+            'structureBiodata' => $structureBiodata,
+            'structureDataPemohon' => $structureDataPemohon,
+            'structurePenutup' => $structurePenutup,
+        ];
+    }
+
+    public static function izinKuasaInsidentil($params)
+    {
+        $array_jenis_kelamin = $params['array_jenis_kelamin'];
+        $array_kedudukan_pihak = $params['array_kedudukan_pihak'];
+        $array_hubungan_pihak = $params['array_hubungan_pihak'];
+        $array_agama = $params['array_agama'];
+
+        $row = $params['row'];
+
+        $structureBiodata = [
+            [
+                'type' => 'number',
+                'label' => 'NIK (Nomor Induk KTP) (*)',
+                'name' => 'nik',
+                'placeholder' => 'NIK (Nomor Induk KTP)...',
+                'value' => isset($row) ? $row->nik ?? '' : '',
+                'col' => 'col-lg-12',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Nama (*)',
+                'name' => 'nama',
+                'placeholder' => 'Nama...',
+                'value' => isset($row) ? $row->nama ?? '' : '',
+                'col' => 'col-lg-12',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tempat Lahir (*)',
+                'name' => 'tempat_lahir',
+                'placeholder' => 'Tempat Lahir...',
+                'value' => isset($row) ? $row->tempat_lahir ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Lahir (*)',
+                'name' => 'tanggal_lahir',
+                'placeholder' => 'Tanggal Lahir...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_lahir) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Agama (*)',
+                'name' => 'agama',
+                'value' => isset($row) ? $row->agama ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_agama,
+                'expand_input' => 'agama_input',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis kelamin (*)',
+                'name' => 'jenis_kelamin',
+                'value' => isset($row) ? $row->jenis_kelamin ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_jenis_kelamin,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Pekerjaan (*)',
+                'name' => 'pekerjaan',
+                'placeholder' => 'Pekerjaan...',
+                'value' => isset($row) ? $row->pekerjaan ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'textarea',
+                'label' => 'Alamat (*)',
+                'name' => 'alamat',
+                'placeholder' => 'alamat...',
+                'value' => isset($row) ? $row->alamat ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+        ];
+
+        $structureDataPemohon = [
+            [
+                'type' => 'text',
+                'label' => 'Nama pihak yang menguasakan / berhalangan hadir (*)',
+                'name' => 'nama_pihak',
+                'placeholder' => 'Nama pihak yang menguasakan / berhalangan hadir...',
+                'value' => isset($row) ? $row->nama_pihak ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Kedudukan pihak yang berhalangan hadir (*)',
+                'name' => 'selaku_pihak',
+                'value' => isset($row) ? $row->selaku_pihak ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_kedudukan_pihak,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'No. Perkara (*)',
+                'name' => 'nomor_perkara',
+                'placeholder' => 'Nomor perkara yang sedang dijalani...',
+                'value' => isset($row) ? $row->nomor_perkara ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+
+            [
+                'type' => 'select',
+                'label' => 'Hubungan pihak yang berhalangan hadir (*)',
+                'name' => 'hubungan_dengan_pihak',
+                'value' => isset($row) ? $row->hubungan_dengan_pihak ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_hubungan_pihak,
+                'expand_input' => 'hubungan_pihak_input',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Desa / Kelurahan (*)',
+                'name' => 'surat_desa',
+                'placeholder' => 'Desa atau kelurahan yang menerbitkan surat keterangan adanya hubungan keluarga...',
+                'value' => isset($row) ? $row->surat_desa ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+
+            [
+                'type' => 'text',
+                'label' => 'No. Surat Keterangan (*)',
+                'name' => 'nomor_desa',
+                'placeholder' => 'No. Surat Keterangan...',
+                'value' => isset($row) ? $row->nomor_desa ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Surat keterangan (*)',
+                'name' => 'tanggal_desa',
+                'placeholder' => 'Tanggal Surat keterangan...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_desa) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+
+            [
+                'type' => 'text',
+                'label' => 'Alasan pihak berhalangan hadir (*)',
+                'name' => 'alasan_pihak',
+                'placeholder' => 'Alasan pihak tersebut tidak dapat hadir ...',
+                'value' => isset($row) ? $row->alasan_pihak ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+        ];
+
+        $structurePenutup = [
+            [
+                'type' => 'text',
+                'label' => 'Tempat pemohon (*)',
+                'name' => 'tempat_pemohon',
+                'placeholder' => 'Tempat pemohon...',
+                'value' => isset($row) ? $row->tempat_pemohon ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal pemohon (*)',
+                'name' => 'tanggal_pemohon',
+                'placeholder' => 'Tanggal pemohon...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_pemohon) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+        ];
+
+        return [
+            'structureBiodata' => $structureBiodata,
+            'structureDataPemohon' => $structureDataPemohon,
+            'structurePenutup' => $structurePenutup,
+        ];
+    }
+
+    public static function pembetulanAktaCatatanSipil($params)
+    {
+        $array_jenis_kelamin = $params['array_jenis_kelamin'];
+        $array_pemohon = $params['array_pemohon'];
+        $array_akta = $params['array_akta'];
+        $array_agama = $params['array_agama'];
+        $array_data_ket = $params['array_data_ket'];
+        $array_pilihan_kepentingan = $params['array_pilihan_kepentingan'];
+
+        $row = $params['row'];
+
+        $structureBiodata = [
+            [
+                'type' => 'number',
+                'label' => 'NIK (Nomor Induk KTP) (*)',
+                'name' => 'nik',
+                'placeholder' => 'NIK (Nomor Induk KTP)...',
+                'value' => isset($row) ? $row->nik ?? '' : '',
+                'col' => 'col-lg-12',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Nama (*)',
+                'name' => 'nama',
+                'placeholder' => 'Nama...',
+                'value' => isset($row) ? $row->nama ?? '' : '',
+                'col' => 'col-lg-12',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tempat Lahir (*)',
+                'name' => 'tempat_lahir',
+                'placeholder' => 'Tempat Lahir...',
+                'value' => isset($row) ? $row->tempat_lahir ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal Lahir (*)',
+                'name' => 'tanggal_lahir',
+                'placeholder' => 'Tanggal Lahir...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_lahir) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Agama (*)',
+                'name' => 'agama',
+                'value' => isset($row) ? $row->agama ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_agama,
+                'expand_input' => 'agama_input',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis kelamin (*)',
+                'name' => 'jenis_kelamin',
+                'value' => isset($row) ? $row->jenis_kelamin ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_jenis_kelamin,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Pekerjaan (*)',
+                'name' => 'pekerjaan',
+                'placeholder' => 'Pekerjaan...',
+                'value' => isset($row) ? $row->pekerjaan ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'textarea',
+                'label' => 'Alamat (*)',
+                'name' => 'alamat',
+                'placeholder' => 'alamat...',
+                'value' => isset($row) ? $row->alamat ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+        ];
+
+        $dokumenPendukung = isset($row) ? json_decode($row->dokumen_pendukung, true) ?? '' : [];
+        $arrayDataPendukung = [
+            [
+                [
+                    'type' => 'text',
+                    'label' => 'Nama Dokumen Pendukung',
+                    'name' => 'nama_dokumen_pendukung',
+                    'placeholder' => 'Nama Dokumen Pendukung...',
+                    'value' => '',
+                    'col' => 'col-lg-5',
+                    'class' => 'nama_dokumen_pendukung',
+                    'data-index' => 0,
+                ],
+                [
+                    'type' => 'text',
+                    'label' => 'Tanggal Dokumen',
+                    'name' => 'tanggal_dokumen_pendukung',
+                    'placeholder' => 'Tanggal Dokumen...',
+                    'value' => '',
+                    'col' => 'col-lg-5',
+                    'class' => 'tanggal_dokumen_pendukung datepicker',
+                    'data-index' => 0,
+                ],
+                [
+                    'type' => 'button_remove_array_input',
+                    'col' => 'col-lg-2',
+                    'title' => '<i class="fas fa-trash"></i>',
+                    'class' => 'btn btn-danger btn-sm button_remove_array_input',
+                    'style' => 'margin-top: 30px;',
+                    'data-index' => 0,
+                    'disabled' => 'disabled',
+                ],
+                [
+                    'type' => 'text',
+                    'label' => 'Yang Mengeluarkan Dokumen',
+                    'name' => 'yang_mengeluarkan_dokumen',
+                    'placeholder' => 'Yang Mengeluarkan Dokumen...',
+                    'value' => '',
+                    'col' => 'col-lg-12',
+                    'class' => 'yang_mengeluarkan_dokumen',
+                    'data-index' => 0,
+                ],
+            ]
+        ];
+        if (count($dokumenPendukung) > 0) {
+            $arrayDataPendukung = [];
+            foreach ($dokumenPendukung as $key => $item) {
+                $index0Disabled = $key == 0 ? 'disabled' : '';
+                $arrayDataPendukung[] = [
+                    [
+                        'type' => 'text',
+                        'label' => 'Nama Dokumen Pendukung',
+                        'name' => 'nama_dokumen_pendukung',
+                        'placeholder' => 'Nama Dokumen Pendukung...',
+                        'value' => $item['nama_dokumen_pendukung'] ?? '',
+                        'col' => 'col-lg-5',
+                        'data-index' => $key,
+                        'class' => 'nama_dokumen_pendukung',
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => 'Tanggal Dokumen',
+                        'name' => 'tanggal_dokumen_pendukung',
+                        'placeholder' => 'Tanggal Dokumen...',
+                        'value' => UtilsHelper::formatDateLaporan($item['tanggal_dokumen_pendukung']) ?? '',
+                        'col' => 'col-lg-5',
+                        'class' => 'datepicker',
+                        'data-index' => $key,
+                        'class' => 'tanggal_dokumen_pendukung datepicker',
+                    ],
+                    [
+                        'type' => 'button_remove_array_input',
+                        'col' => 'col-lg-2',
+                        'title' => '<i class="fas fa-trash"></i>',
+                        'class' => 'btn btn-danger btn-sm button_remove_array_input',
+                        'style' => 'margin-top: 30px;',
+                        'data-index' => $key,
+                        'disabled' => $index0Disabled,
+                    ],
+                    [
+                        'type' => 'text',
+                        'label' => 'Yang Mengeluarkan Dokumen',
+                        'name' => 'yang_mengeluarkan_dokumen',
+                        'placeholder' => 'Yang Mengeluarkan Dokumen...',
+                        'value' => $item['yang_mengeluarkan_dokumen'] ?? '',
+                        'col' => 'col-lg-12',
+                        'data-index' => $key,
+                        'class' => 'yang_mengeluarkan_dokumen',
+                    ],
+                ];
+            }
+        }
+
+        $structureDataPemohon = [
+            [
+                'type' => 'select',
+                'label' => 'Pemohon (*)',
+                'name' => 'pemohon',
+                'value' => isset($row) ? $row->pemohon ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_pemohon,
+                'expand_input' => 'pemohon_input',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Akta Catatan Sipil yang Terdapat Kesalahan (*)',
+                'name' => 'akta',
+                'value' => isset($row) ? $row->akta ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_akta,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'No. Akta (*)',
+                'name' => 'no_akta',
+                'placeholder' => 'No. Akta...',
+                'value' => isset($row) ? $row->no_akta ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Kabupaten (*)',
+                'name' => 'kabupaten',
+                'placeholder' => 'Kabupaten...',
+                'value' => isset($row) ? $row->kabupaten ?? 'Rokan Hulu' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis Data yang Salah (*)',
+                'name' => 'ket_salah',
+                'value' => isset($row) ? $row->ket_salah ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_data_ket,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Penulisan data yang salah (*)',
+                'name' => 'data_salah',
+                'placeholder' => 'Penulisan data yang salah...',
+                'value' => isset($row) ? $row->data_salah ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Jenis Data yang Benar (*)',
+                'name' => 'ket_benar',
+                'value' => isset($row) ? $row->ket_benar ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_data_ket,
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Penulisan data yang benar (*)',
+                'name' => 'data_benar',
+                'placeholder' => 'Penulisan data yang benar...',
+                'value' => isset($row) ? $row->data_benar ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'array_input',
+                'col' => 'col-lg-12',
+                'array_data' => $arrayDataPendukung,
+            ],
+            [
+                'type' => 'select',
+                'label' => 'Pilihan kepentingan (*)',
+                'name' => 'pilihan_kepentingan',
+                'value' => isset($row) ? $row->pilihan_kepentingan ?? '' : '',
+                'col' => 'col-lg-6',
+                'array_data' => $array_pilihan_kepentingan,
+            ],
+        ];
+
+        $structurePenutup = [
+            [
+                'type' => 'text',
+                'label' => 'Tempat pemohon (*)',
+                'name' => 'tempat_pemohon',
+                'placeholder' => 'Tempat pemohon...',
+                'value' => isset($row) ? $row->tempat_pemohon ?? '' : '',
+                'col' => 'col-lg-6',
+            ],
+            [
+                'type' => 'text',
+                'label' => 'Tanggal pemohon (*)',
+                'name' => 'tanggal_pemohon',
+                'placeholder' => 'Tanggal pemohon...',
+                'value' => isset($row) ? UtilsHelper::formatDateLaporan($row->tanggal_pemohon) ?? '' : '',
+                'col' => 'col-lg-6',
+                'class' => 'datepicker',
+            ],
+        ];
+
+        return [
+            'structureBiodata' => $structureBiodata,
+            'structureDataPemohon' => $structureDataPemohon,
+            'structurePenutup' => $structurePenutup,
+        ];
     }
 }

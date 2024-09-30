@@ -19,35 +19,54 @@
             .button_search {
                 width: 100px
             }
+
+            .width-150 {
+                width: 150px;
+            }
         </style>
     @endpush
 
-    <!-- Service Start -->
-    <div class="container-fluid service py-5">
-        <div class="container py-5">
-            <div class="mx-auto text-center wow fadeIn" data-wow-delay="0.1s" style="max-width: 700px;">
-                <h4 class="text-primary mb-4 border-bottom border-primary border-2 d-inline-block p-2 title-border-radius">
-                    Hasil Permohonan Surat
-                </h4>
-            </div>
-            <div class="row g-5 mt-1">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card_area">
-                        <form action="{{ url('hasilPermohonan') }}" method="get" id="form-submit">
-                            <div class="d-flex">
-                                <input type="text" name="slug" class="form-control input_custom"
-                                    placeholder="Cari berdasarkan Nama atau NIK">
-                                <button type="button" class="btn btn-primary button_search">
-                                    <i class="fas fa-search"></i> Cari
-                                </button>
+    <section class="section" id="projects">
+        <div class="container">
+            <div class="card mt-5">
+                <div class="card-header">
+                    <nav aria-label="breadcrumb">
+                        <ol class="breadcrumb">
+                            <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
+                            <li class="breadcrumb-item active"><span>Cari Data</span></li>
+                        </ol>
+                    </nav>
+                </div>
+                <div class="card-body">
+                    <div class="row justify-content-center mb-5 mt-3">
+                        <div class="col-md-8 col-lg-6 text-center">
+                            <h6 class="subtitle">Form Pengajuan</h6>
+                            <h2 class="title">Cari Data Pengajuan</h2>
+                        </div>
+                    </div>
+                    <!-- Gallary -->
+
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8 mx-auto">
+                            <div class="card_area">
+                                <form action="{{ url('hasilPermohonan') }}" method="get" id="form-submit">
+                                    <div class="d-flex">
+                                        <input type="text" name="slug" class="form-control input_custom shadow"
+                                            placeholder="Cari Berdasarkan Nomor Induk Kependudukan (KTP)">
+                                        <button type="button" class="btn btn-primary button_search width-150">
+                                            <strong>
+                                                <i class="fas fa-search"></i> Cari
+                                            </strong>
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
-                        </form>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Service End -->
+    </section>
 
     @push('custom_js')
         <script class="url_root" data-value="{{ url('/') }}"></script>

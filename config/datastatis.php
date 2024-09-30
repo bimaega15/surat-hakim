@@ -78,4 +78,25 @@ return [
         'Sudah' => 'Sudah',
         'Belum' => 'Belum',
     ],
+    'kedudukan_pihak' => [
+        'Penggugat' => 'Penggugat',
+        'Tergugat' => 'Tergugat',
+        'Turut tergugat' => 'Turut tergugat',
+        'Pemohon' => 'Pemohon',
+    ],
+    'hubungan_pihak' => [
+        'Suami' => 'Suami',
+        'Istri' => 'Istri',
+        'Orang tua' => 'Orang tua',
+        'Anak' => 'Anak',
+        'Saudara kandung' => 'Saudara kandung',
+        'Keponakan' => 'Keponakan',
+        'Lainnya' => 'Lainnya',
+    ],
+    'pilihan_kepentingan' => [
+        'Pekerjaan dan Karir Pemohon' => 'Pekerjaan dan Karir Pemohon',
+        'Pendidikan Anak Permohon' => 'Pendidikan Anak Permohon',
+        'Pendidikan Pemohon' => 'Pendidikan Pemohon',
+        'Lainnya' => 'Lainnya',
+    ],
 ];

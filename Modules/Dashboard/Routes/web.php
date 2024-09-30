@@ -12,7 +12,8 @@
 */
 
 Route::prefix('dashboard')->middleware('auth')->group(function() {
-    Route::get('/', 'DashboardController@index');
+    Route::get('/', 'DashboardController@index')->name('dashboard.index');
+    Route::get('/dashboard/permintaanSurat', 'DashboardController@permintaanSurat')->name('dashboard.permintaanSurat');
     Route::get('/piutangPenjualan', 'DashboardController@piutangPenjualan');
     Route::get('/piutangPembelian', 'DashboardController@piutangPembelian');
 });

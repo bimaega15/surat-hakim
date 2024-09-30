@@ -154,32 +154,125 @@ class HasilPermohonanController extends Controller
         $permintaanSurat = PermintaanSurat::with('formSurat')->find($id);
         $dataPermintaanSurat = json_decode($permintaanSurat->data_permintaan_surat, true);
         $formSurat = $permintaanSurat->formSurat;
+        $judul_fsurat = strtolower($formSurat->judul_fsurat);
 
         $content = $formSurat->content_fsurat;
         $data = $dataPermintaanSurat;
-        unset($data['tanggal_putusan']);
-        unset($data['tanggal_putusan_banding']);
-        unset($data['tanggal_putusan_ma']);
-        unset($data['tanggal_aanmaning']);
-        unset($data['tanggal_pemohon']);
-        unset($data['jenis_kelamin']);
-        $data = array_merge([
-            'tempat_tanggal_lahir' => $dataPermintaanSurat['tempat_lahir'] . ', ' .
-                UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_lahir']),
-            'jenis_kelamin' => $dataPermintaanSurat['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan',
-            'tanggal_putusan' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_putusan']),
-            'tanggal_putusan_banding' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_putusan_banding']),
-            'tanggal_putusan_ma' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_putusan_ma']),
-            'tanggal_aanmaning' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_aanmaning']),
-            'tanggal_pemohon' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_pemohon']),
+        if ($judul_fsurat == 'permohonan eksekusi') {
+            unset($data['tanggal_putusan']);
+            unset($data['tanggal_putusan_banding']);
+            unset($data['tanggal_putusan_ma']);
+            unset($data['tanggal_aanmaning']);
+            unset($data['tanggal_pemohon']);
+            unset($data['jenis_kelamin']);
+            $data = array_merge([
+                'tempat_tanggal_lahir' => $dataPermintaanSurat['tempat_lahir'] . ', ' .
+                    UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_lahir']),
+                'jenis_kelamin' => $dataPermintaanSurat['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan',
+                'tanggal_putusan' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_putusan']),
+                'tanggal_putusan_banding' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_putusan_banding']),
+                'tanggal_putusan_ma' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_putusan_ma']),
+                'tanggal_aanmaning' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_aanmaning']),
+                'tanggal_pemohon' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_pemohon']),
 
-        ], $data);
+            ], $data);
+        } else if ($judul_fsurat == 'permohonan izin sebagai kuasa insidentil') {
+            unset($data['tanggal_pemohon']);
+            unset($data['jenis_kelamin']);
+            unset($data['tanggal_desa']);
+            unset($data['tanggal_surat']);
+            $data = array_merge([
+                'tempat_tanggal_lahir' => $dataPermintaanSurat['tempat_lahir'] . ', ' .
+                    UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_lahir']),
+                'jenis_kelamin' => $dataPermintaanSurat['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan',
+                'tanggal_pemohon' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_pemohon']),
+                'tanggal_desa' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_desa']),
+                'tanggal_surat' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_surat']),
+            ], $data);
+        } else if ($judul_fsurat == 'permohonan pembetulan akta catatan sipil') {
+            unset($data['tanggal_pemohon']);
+            unset($data['jenis_kelamin']);
+            unset($data['tanggal_surat']);
+            $data = array_merge([
+                'tempat_tanggal_lahir' => $dataPermintaanSurat['tempat_lahir'] . ', ' .
+                    UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_lahir']),
+                'jenis_kelamin' => $dataPermintaanSurat['jenis_kelamin'] == 'L' ? 'Laki-laki' : 'Perempuan',
+                'tanggal_pemohon' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_pemohon']),
+                'tanggal_surat' => UtilsHelper::formatDateBirthdate($dataPermintaanSurat['tanggal_surat']),
+            ], $data);
+        }
 
-        // dd($data);
-
-        // Gantikan placeholder dengan data
         foreach ($data as $key => $value) {
-            $content = str_replace('{{ ' . $key . ' }}', $value, $content);
+            $content = str_replace('--' . $key . '--', $value, $content);
+        }
+
+        $searchText = '--area_dokumen_pendukung--';
+        if (strpos($content, $searchText) !== false) {
+            $contentReplace = '
+        <ol>';
+            $dokumenPendukung = json_decode($dataPermintaanSurat['dokumen_pendukung'], true);
+            foreach ($dokumenPendukung as $key => $value) {
+                $contentReplace .= '<li style="padding-top: 10px; 0px;">
+                    <table style="padding: 0px; margin: 0px; vertical-align: top; dispay: inline-table;">
+                        <tr>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                    Nama Dokumen Pendukung
+                                </span>
+                            </td>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                :
+                                </span>
+                            </td>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                ' . $value['nama_dokumen_pendukung'] . '
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                    Tanggal Dokumen
+                                </span>
+                            </td>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                :
+                                </span>
+                            </td>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                ' . UtilsHelper::formatDate($value['tanggal_dokumen_pendukung']) . '
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                Yang Mengeluarkan
+                                </span>
+                            </td>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                :
+                                </span>
+                            </td>
+                            <td style="padding: 0px; margin: 0px; vertical-align: top;">
+                                <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
+                                ' . $value['yang_mengeluarkan_dokumen'] . '
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </li>
+        ';
+            }
+            $contentReplace .= '</ol>
+            </p>
+            <p style="font-size: 12px; padding-left: 35px; margin:0;">';
+            $content = str_replace($searchText, $contentReplace, $content);
         }
 
         $pdf = App::make('dompdf.wrapper');
@@ -188,6 +281,6 @@ class HasilPermohonanController extends Controller
             'content' => $content,
         ]);
         $pdf->setPaper('A4', 'portrait');
-        return $pdf->stream();
+        return $pdf->stream($formSurat->judul_fsurat . '.pdf');
     }
 }
