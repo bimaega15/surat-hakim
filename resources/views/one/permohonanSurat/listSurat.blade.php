@@ -43,20 +43,20 @@
                             @endphp
                             <div class="col-md-6 col-xl-4">
                                 <a href="{{ url('permohonanSurat?slug=' . $slug) }}" class="text-dark">
-                                    <div class="card item-box rounded mt-4 overflow-hidden">
-                                        <div class="position-relative">
-                                            <div class="text-center">
-                                                <img class="item-container img-fluid img-contain"
-                                                    src="{{ asset('upload/surat/' . $item->icon_fsurat) }}"
-                                                    alt="{{ $item->icon_fsurat }}" />
+                                    <div class="card item-box rounded mt-4 overflow-hidden" style="min-height: 300px;">
+                                        <div class="card-body pt-4 d-flex align-items-center flex-column justify-content-center">
+                                            <div class="position-relative">
+                                                <div class="text-center">
+                                                    <img class="item-container img-fluid img-contain"
+                                                        src="{{ asset('upload/surat/' . $item->icon_fsurat) }}"
+                                                        alt="{{ $item->icon_fsurat }}" />
+                                                </div>
+                                                <div class="item-mask mfp-image"
+                                                    data-src="{{ asset('upload/surat/' . $item->icon_fsurat) }}"
+                                                    data-gallery="myGal">
+                                                </div>
                                             </div>
-                                            <div class="item-mask mfp-image"
-                                                data-src="{{ asset('upload/surat/' . $item->icon_fsurat) }}"
-                                                data-gallery="myGal">
-                                            </div>
-                                        </div>
-                                        <div class="card-body">
-                                            <h5 class="fs-18 mb-1">{{ $item->judul_fsurat }}</h5>
+                                            <h5 class="fs-18 mb-1 mt-3">{{ $item->judul_fsurat }}</h5>
                                             <p class="text-muted mb-0">{{ $item->deskripsi_fsurat }}</p>
                                         </div>
                                     </div>

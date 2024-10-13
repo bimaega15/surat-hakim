@@ -21,8 +21,8 @@
     <div class="row mb-3">
         @foreach ($dataCount as $item)
             <div class="col-lg-4">
-                <div class="card">
-                    <div class="card-body">
+                <div class="card" style="min-height: 170px;">
+                    <div class="card-body d-flex align-items-center">
                         <div class="d-flex justify-content-between align-item-center">
                             <div>
                                 <h3 class="text-dark mb-4">{{ $item['value'] }}</h3>

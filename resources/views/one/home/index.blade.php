@@ -38,7 +38,6 @@
                                     <video id="VisaChipCardVideo" class="w-100" controls>
                                         <source src="{{ asset('upload/settingVideo/' . $settingApp->video_pengaturan) }}"
                                             type="video/mp4" />
-                                        <!--Browser does not support <video> tag -->
                                     </video>
                                 </div>
                             </div>

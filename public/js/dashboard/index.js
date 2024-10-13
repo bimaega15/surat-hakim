@@ -15,18 +15,18 @@ $(document).ready(function () {
                     className: "text-center",
                 },
                 {
+                    data: "nik_permintaan_surat",
+                    name: "nik_permintaan_surat",
+                    searchable: true,
+                },
+                {
+                    data: "nama_permintaan_surat",
+                    name: "nama_permintaan_surat",
+                    searchable: true,
+                },
+                {
                     data: "judul_fsurat",
                     name: "judul_fsurat",
-                    searchable: true,
-                },
-                {
-                    data: "deskripsi_fsurat",
-                    name: "deskripsi_fsurat",
-                    searchable: true,
-                },
-                {
-                    data: "icon_fsurat",
-                    name: "icon_fsurat",
                     searchable: true,
                 },
                 {

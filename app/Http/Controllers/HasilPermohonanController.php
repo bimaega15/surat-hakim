@@ -209,11 +209,11 @@ class HasilPermohonanController extends Controller
         $searchText = '--area_dokumen_pendukung--';
         if (strpos($content, $searchText) !== false) {
             $contentReplace = '
-        <ol>';
+        <ol style="list-style-position: inside; margin-top: 5px; margin-bottom: 15px;">';
             $dokumenPendukung = json_decode($dataPermintaanSurat['dokumen_pendukung'], true);
             foreach ($dokumenPendukung as $key => $value) {
-                $contentReplace .= '<li style="padding-top: 10px; 0px;">
-                    <table style="padding: 0px; margin: 0px; vertical-align: top; dispay: inline-table;">
+                $contentReplace .= '<li style="vertical-align: top; line-height: 15px; padding-top: 10px;">
+                    <table style="padding: 0px; margin: 0px; vertical-align: top; display: inline-table;">
                         <tr>
                             <td style="padding: 0px; margin: 0px; vertical-align: top;">
                                 <span style="font-family: Arial, Helvetica, sans-serif; font-size: 12px">
@@ -274,6 +274,7 @@ class HasilPermohonanController extends Controller
             <p style="font-size: 12px; padding-left: 35px; margin:0;">';
             $content = str_replace($searchText, $contentReplace, $content);
         }
+
 
         $pdf = App::make('dompdf.wrapper');
         $pdf = Pdf::loadView('pdf.result', [
